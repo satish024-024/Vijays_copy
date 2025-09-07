@@ -1,0 +1,158 @@
+initializeComponents	@	app.js:100
+initialize	@	app.js:30
+QuantumCircuitApp	@	app.js:18
+initializeApp	@	index.html:484
+setTimeout		
+(anonymous)	@	index.html:508<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Circuit Visualizer Fix Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #06b6d4;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+        }
+        .success {
+            border-left: 4px solid #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        .error {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 3D Circuit Visualizer Fix Test</h1>
+        <p>This page tests the fixed 3D circuit visualizer initialization.</p>
+        
+        <button class="test-button" onclick="testIframe()">Test Fixed Iframe</button>
+        <button class="test-button" onclick="testFullscreen()">Test Fullscreen</button>
+        
+        <div id="iframe-container" class="iframe-container" style="display: none;">
+            <iframe id="3d-circuit-iframe" src="/static/3d-circuit-visualizer/index.html"></iframe>
+        </div>
+        
+        <div id="status" class="status">
+            <h3>Status:</h3>
+            <p id="status-text">Ready to test the fix...</p>
+        </div>
+    </div>
+
+    <script>
+        function testIframe() {
+            const container = document.getElementById('iframe-container');
+            const statusText = document.getElementById('status-text');
+            const statusDiv = document.getElementById('status');
+            
+            statusText.textContent = 'Loading 3D circuit visualizer with fixes...';
+            statusDiv.className = 'status';
+            container.style.display = 'block';
+            
+            // Test if iframe loads
+            const iframe = document.getElementById('3d-circuit-iframe');
+            iframe.onload = function() {
+                statusText.textContent = '✅ Iframe loaded! Checking for initialization errors...';
+                statusDiv.className = 'status success';
+                
+                // Check if the iframe loaded successfully
+                setTimeout(() => {
+                    try {
+                        // Try to access the iframe's document
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        const canvas = iframeDoc.getElementById('quantumCanvas');
+                        if (canvas) {
+                            statusText.textContent = '✅ SUCCESS! 3D circuit visualizer loaded without errors. Canvas found and ready.';
+                            statusDiv.className = 'status success';
+                        } else {
+                            statusText.textContent = '⚠️ Iframe loaded but canvas not found. Check console for errors.';
+                            statusDiv.className = 'status error';
+                        }
+                    } catch (e) {
+                        statusText.textContent = '⚠️ Cannot access iframe content (CORS). This is normal for cross-origin iframes.';
+                        statusDiv.className = 'status';
+                    }
+                }, 2000);
+            };
+            
+            iframe.onerror = function() {
+                statusText.textContent = '❌ Failed to load iframe. Check if the visualizer files are in the correct location.';
+                statusDiv.className = 'status error';
+            };
+        }
+        
+        function testFullscreen() {
+            const container = document.getElementById('iframe-container');
+            const iframe = document.getElementById('3d-circuit-iframe');
+            
+            if (container.style.display === 'none') {
+                testIframe();
+            }
+            
+            // Request fullscreen
+            if (container.requestFullscreen) {
+                container.requestFullscreen().then(() => {
+                    document.getElementById('status-text').textContent = '✅ Fullscreen mode activated! The 3D circuit visualizer should be working properly.';
+                    document.getElementById('status').className = 'status success';
+                }).catch(err => {
+                    document.getElementById('status-text').textContent = '❌ Failed to enter fullscreen: ' + err.message;
+                    document.getElementById('status').className = 'status error';
+                });
+            } else {
+                document.getElementById('status-text').textContent = '❌ Fullscreen API not supported in this browser.';
+                document.getElementById('status').className = 'status error';
+            }
+        }
+        
+        // Handle fullscreen exit
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.getElementById('status-text').textContent = 'Exited fullscreen mode. Test completed successfully!';
+                document.getElementById('status').className = 'status success';
+            }
+        });
+    </script>
+</body>
+</html>

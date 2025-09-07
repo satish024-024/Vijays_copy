@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Quantum Circuit Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="logo">
+                    <i class="fas fa-atom"></i>
+                    Quantum Circuit 3D
+                </h1>
+            </div>
+            <div class="header-center">
+                <div class="circuit-controls">
+                    <button class="btn btn-primary" id="runCircuit">
+                        <i class="fas fa-play"></i> Run Circuit
+                    </button>
+                    <button class="btn btn-secondary" id="clearCircuit">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button class="btn btn-secondary" id="saveCircuit">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="btn btn-secondary" id="loadCircuit">
+                        <i class="fas fa-folder-open"></i> Load
+                    </button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="device-selector">
+                    <div id="deviceSelectCustom" class="dropdown">
+                        <span class="dropdown-label">Local Simulator</span>
+                        <i class="fas fa-chevron-down"></i>
+                        <ul class="dropdown-menu" style="display:none">
+                            <li data-value="simulator">Local Simulator</li>
+                            <li data-value="ibmq_qasm_simulator">IBM QASM Simulator</li>
+                            <li data-value="ibmq_lima">IBM Lima (5 qubits)</li>
+                            <li data-value="ibmq_belem">IBM Belem (5 qubits)</li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="btn btn-ghost" id="settingsBtn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Sidebar - Gate Palette -->
+            <aside class="sidebar left-sidebar">
+                <div class="sidebar-header">
+                    <h3>Quantum Gates</h3>
+                    <button class="btn btn-ghost" id="collapseGates">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+                <div class="gate-categories">
+                    <div class="gate-category">
+                        <h4>Single Qubit</h4>
+                        <div class="gate-palette" id="singleQubitGates">
+                            <div class="gate-item" data-gate="X">
+                                <div class="gate-icon">X</div>
+                                <span>Pauli-X</span>
+                            </div>
+                            <div class="gate-item" data-gate="Y">
+                                <div class="gate-icon">Y</div>
+                                <span>Pauli-Y</span>
+                            </div>
+                            <div class="gate-item" data-gate="Z">
+                                <div class="gate-icon">Z</div>
+                                <span>Pauli-Z</span>
+                            </div>
+                            <div class="gate-item" data-gate="H">
+                                <div class="gate-icon">H</div>
+                                <span>Hadamard</span>
+                            </div>
+                            <div class="gate-item" data-gate="S">
+                                <div class="gate-icon">S</div>
+                                <span>S Gate</span>
+                            </div>
+                            <div class="gate-item" data-gate="T">
+                                <div class="gate-icon">T</div>
+                                <span>T Gate</span>
+                            </div>
+                            <div class="gate-item" data-gate="RX">
+                                <div class="gate-icon">RX</div>
+                                <span>Rotation X</span>
+                            </div>
+                            <div class="gate-item" data-gate="RY">
+                                <div class="gate-icon">RY</div>
+                                <span>Rotation Y</span>
+                            </div>
+                            <div class="gate-item" data-gate="RZ">
+                                <div class="gate-icon">RZ</div>
+                                <span>Rotation Z</span>
+                            </div>
+                            <div class="gate-item" data-gate="TDG">
+                                <div class="gate-icon">T†</div>
+                                <span>T-dagger</span>
+                            </div>
+                            <div class="gate-item" data-gate="SX">
+                                <div class="gate-icon">√X</div>
+                                <span>√X</span>
+                            </div>
+                            <div class="gate-item" data-gate="SY">
+                                <div class="gate-icon">√Y</div>
+                                <span>√Y</span>
+                            </div>
+                            <div class="gate-item" data-gate="U1">
+                                <div class="gate-icon">U1</div>
+                                <span>U1(λ)</span>
+                            </div>
+                            <div class="gate-item" data-gate="U2">
+                                <div class="gate-icon">U2</div>
+                                <span>U2(φ,λ)</span>
+                            </div>
+                            <div class="gate-item" data-gate="U3">
+                                <div class="gate-icon">U3</div>
+                                <span>U3(θ,φ,λ)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gate-category">
+                        <h4>Two Qubit</h4>
+                        <div class="gate-palette" id="twoQubitGates">
+                            <div class="gate-item" data-gate="CNOT">
+                                <div class="gate-icon">⊕</div>
+                                <span>CNOT</span>
+                            </div>
+                            <div class="gate-item" data-gate="CZ">
+                                <div class="gate-icon">CZ</div>
+                                <span>Controlled Z</span>
+                            </div>
+                            <div class="gate-item" data-gate="SWAP">
+                                <div class="gate-icon">⇄</div>
+                                <span>SWAP</span>
+                            </div>
+                            <div class="gate-item" data-gate="CRX">
+                                <div class="gate-icon">CRX</div>
+                                <span>Controlled RX</span>
+                            </div>
+                            <div class="gate-item" data-gate="CRY">
+                                <div class="gate-icon">CRY</div>
+                                <span>Controlled RY</span>
+                            </div>
+                            <div class="gate-item" data-gate="CRZ">
+                                <div class="gate-icon">CRZ</div>
+                                <span>Controlled RZ</span>
+                            </div>
+                            <div class="gate-item" data-gate="CU1">
+                                <div class="gate-icon">CU1</div>
+                                <span>Controlled U1</span>
+                            </div>
+                            <div class="gate-item" data-gate="CU3">
+                                <div class="gate-icon">CU3</div>
+                                <span>Controlled U3</span>
+                            </div>
+                            <div class="gate-item" data-gate="CCX">
+                                <div class="gate-icon">Tof</div>
+                                <span>Toffoli</span>
+                            </div>
+                            <div class="gate-item" data-gate="CSWAP">
+                                <div class="gate-icon">CSW</div>
+                                <span>Fredkin</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gate-category">
+                        <h4>Measurement</h4>
+                        <div class="gate-palette" id="measurementGates">
+                            <div class="gate-item" data-gate="MEASURE">
+                                <div class="gate-icon">📏</div>
+                                <span>Measure</span>
+                            </div>
+                            <div class="gate-item" data-gate="BARRIER">
+                                <div class="gate-icon">|</div>
+                                <span>Barrier</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 3D Canvas Container -->
+            <div class="canvas-container">
+                <canvas id="quantumCanvas"></canvas>
+                <div class="canvas-overlay">
+                    <div class="circuit-info">
+                        <div class="info-item">
+                            <span class="label">Qubits:</span>
+                            <span class="value" id="qubitCount">3</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Depth:</span>
+                            <span class="value" id="circuitDepth">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Gates:</span>
+                            <span class="value" id="gateCount">0</span>
+                        </div>
+                    </div>
+                    <div class="camera-controls">
+                        <button class="btn btn-ghost" id="resetCamera">
+                            <i class="fas fa-home"></i>
+                        </button>
+                        <button class="btn btn-ghost" id="toggleAnimation">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar - Results & Analysis -->
+            <aside class="sidebar right-sidebar">
+                <div class="sidebar-header">
+                    <h3>Results & Analysis</h3>
+                    <button class="btn btn-ghost" id="collapseResults">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="results-content">
+                    <div class="results-section">
+                        <h4>Quantum State</h4>
+                        <div id="blochSpheresContainer" class="bloch-sphere-container" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+                        <div class="state-vector">
+                            <h5>State Vector</h5>
+                            <div id="stateVectorDisplay"></div>
+                        </div>
+                    </div>
+                    <div class="results-section">
+                        <h4>Measurement Results</h4>
+                        <div class="histogram-container">
+                            <canvas id="resultsHistogram"></canvas>
+                        </div>
+                        <div class="statistics">
+                            <div class="stat-item">
+                                <span class="label">Fidelity:</span>
+                                <span class="value" id="fidelity">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Entanglement:</span>
+                                <span class="value" id="entanglement">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="results-section">
+                        <h4>IBM Job Status</h4>
+                        <div class="job-status" id="jobStatus">
+                            <div class="status-indicator">
+                                <i class="fas fa-circle"></i>
+                                <span>Ready</span>
+                            </div>
+                            <div class="job-details" id="jobDetails">
+                                No job running
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Bottom Panel - Circuit Timeline -->
+        <div class="bottom-panel">
+            <div class="panel-header">
+                <h3>Circuit Timeline</h3>
+                <div class="timeline-controls">
+                    <button class="btn btn-ghost" id="stepBack">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="btn btn-ghost" id="playPause">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="btn btn-ghost" id="stepForward">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                    <input type="range" id="timelineSlider" min="0" max="100" value="0">
+                </div>
+            </div>
+            <div class="circuit-timeline" id="circuitTimeline">
+                <!-- Timeline will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Modal for Settings -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <button class="btn btn-ghost" id="closeSettings">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <h4>IBM Quantum API</h4>
+                        <div class="setting-item">
+                            <label for="apiToken">API Token:</label>
+                            <input type="password" id="apiToken" placeholder="Enter your IBM Quantum API token">
+                        </div>
+                        <div class="setting-item">
+                            <label for="hub">Hub:</label>
+                            <input type="text" id="hub" value="ibm-q" placeholder="ibm-q">
+                        </div>
+                    </div>
+                    <div class="setting-group">
+                        <h4>Visualization</h4>
+                        <div class="setting-item">
+                            <label for="animationSpeed">Animation Speed:</label>
+                            <input type="range" id="animationSpeed" min="0.1" max="3" step="0.1" value="1">
+                        </div>
+                        <div class="setting-item">
+                            <label for="showBlochSpheres">Show Bloch Spheres:</label>
+                            <input type="checkbox" id="showBlochSpheres" checked>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <div class="quantum-spinner"></div>
+                <p>Processing quantum circuit...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gate Parameter Inspector -->
+    <div id="paramInspector" class="param-inspector" style="display:none;">
+        <h4 id="paramTitle">Gate Parameters</h4>
+        <label for="angleSlider">Angle (radians)</label>
+        <input type="range" id="angleSlider" min="0" max="6.283" step="0.01">
+        <input type="number" id="angleNumber" min="0" max="6.283" step="0.01">
+        <button id="closeInspector" class="btn btn-secondary" style="margin-top:8px;">Close</button>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global JavaScript Error:', e.error);
+            console.error('Error details:', e);
+        });
+
+        // Load Three.js with fallbacks
+        function loadThreeJS() {
+            return new Promise((resolve, reject) => {
+                // Try primary CDN first
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/three.min.js';
+                script.onload = () => {
+                    console.log('✅ Three.js loaded from primary CDN');
+                    // Load OrbitControls after Three.js
+                    loadOrbitControls().then(resolve).catch(resolve);
+                };
+                script.onerror = () => {
+                    console.warn('❌ Primary Three.js CDN failed, trying secondary...');
+                    
+                    // Try secondary CDN
+                    const script2 = document.createElement('script');
+                    script2.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js';
+                    script2.onload = () => {
+                        console.log('✅ Three.js loaded from secondary CDN');
+                        // Load OrbitControls after Three.js
+                        loadOrbitControls().then(resolve).catch(resolve);
+                    };
+                    script2.onerror = () => {
+                        console.warn('❌ Secondary Three.js CDN failed, trying local...');
+                        
+                        // Try local fallback
+                        const script3 = document.createElement('script');
+                        script3.src = 'three.min.js';
+                        script3.onload = () => {
+                            console.log('✅ Three.js loaded from local file');
+                            // Load OrbitControls after Three.js
+                            loadOrbitControls().then(resolve).catch(resolve);
+                        };
+                        script3.onerror = () => {
+                            console.error('❌ All Three.js sources failed');
+                            document.getElementById('quantumCanvas').innerHTML = `
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; text-align: center; padding: 20px;">
+                                    <h3>⚠️ Three.js Failed to Load</h3>
+                                    <p>Unable to load the 3D visualization library. Please check your internet connection and reload the page.</p>
+                                    <button onclick="location.reload()" style="margin-top: 10px; padding: 10px 20px; background: #4ecdc4; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+                                </div>
+                            `;
+                            reject(new Error('Three.js failed to load from all sources'));
+                        };
+                        document.head.appendChild(script3);
+                    };
+                    document.head.appendChild(script2);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Load OrbitControls
+        function loadOrbitControls() {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js';
+                script.onload = () => {
+                    console.log('✅ OrbitControls loaded');
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.warn('⚠️ OrbitControls failed to load, will use simple controls');
+                    resolve(); // Continue without OrbitControls
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Load Qiskit.js (optional, with fallback)
+        function loadQiskitJS() {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qiskit/0.45.0/qiskit.min.js';
+                script.onload = () => {
+                    console.log('✅ Qiskit.js loaded');
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.warn('⚠️ Qiskit.js failed to load, using local simulator only');
+                    resolve(); // Continue without Qiskit
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Initialize application after scripts load
+        async function initializeApp() {
+            try {
+                console.log('🚀 Starting application initialization...');
+                
+                // Load Three.js first (required)
+                await loadThreeJS();
+                
+                // Load Qiskit.js (optional)
+                await loadQiskitJS();
+                
+                // Load other scripts
+                const scripts = [
+                    'js/quantum-simulator.js',
+                    'js/bloch-sphere.js', 
+                    'js/gate-models.js',
+                    'js/circuit-builder.js',
+                    'js/ibm-integration.js',
+                    'js/visualization.js',
+                    'js/app.js'
+                ];
+                
+                for (const src of scripts) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = src;
+                        script.onload = () => {
+                            console.log(`✅ Loaded ${src}`);
+                            resolve();
+                        };
+                        script.onerror = () => {
+                            console.error(`❌ Failed to load ${src}`);
+                            reject(new Error(`Failed to load ${src}`));
+                        };
+                        document.head.appendChild(script);
+                    });
+                }
+                
+                console.log('🎉 All scripts loaded successfully!');
+                
+                // Initialize the main application
+                console.log('🚀 Creating QuantumCircuitApp instance...');
+                try {
+                    window.quantumApp = new QuantumCircuitApp();
+                    console.log('✅ QuantumCircuitApp created successfully');
+                } catch (appError) {
+                    console.error('❌ Failed to create QuantumCircuitApp:', appError);
+                    throw appError;
+                }
+                
+            } catch (error) {
+                console.error('❌ Application initialization failed:', error);
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('quantumCanvas').innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; text-align: center; padding: 20px;">
+                        <h3>⚠️ Application Failed to Load</h3>
+                        <p>Error: ${error.message}</p>
+                        <button onclick="location.reload()" style="margin-top: 10px; padding: 10px 20px; background: #4ecdc4; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Start initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                // Small delay to ensure iframe is fully loaded
+                setTimeout(initializeApp, 100);
+            });
+        } else {
+            // Small delay to ensure iframe is fully loaded
+            setTimeout(initializeApp, 100);
+        }
+    </script>
+</body>
+</html>

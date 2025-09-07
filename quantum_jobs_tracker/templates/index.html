@@ -5,13 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum Jobs Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="quantum-container">
         <header>
-            <h1>Quantum Jobs Tracker</h1>
-            <p class="quantum-subtitle">Tracking IBM Quantum Computing jobs with quantum-native visualization</p>
+            <h1>Quantum Spark - Amaravathi Quantum Hackathon</h1>
+            <p class="quantum-subtitle">Choose your dashboard theme to start tracking IBM Quantum Computing jobs</p>
         </header>
+
+        <!-- Theme Selection -->
+        <div class="theme-selection">
+            <h2>🎨 Choose Your Dashboard Theme</h2>
+            <div class="theme-grid">
+                <a href="/hackathon" class="theme-card hackathon-theme">
+                    <div class="theme-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Hackathon Dashboard</h3>
+                    <p>Award-winning dashboard with 3D visualizations and AI integration</p>
+                    <div class="theme-badge">🏆 Featured</div>
+                </a>
+                
+                <a href="/advanced" class="theme-card advanced-theme">
+                    <div class="theme-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>Advanced Dashboard</h3>
+                    <p>Advanced dashboard with glossy finish and 3D quantum circuits</p>
+                    <div class="theme-badge">⚡ Advanced</div>
+                </a>
+                
+                <a href="/modern" class="theme-card modern-theme">
+                    <div class="theme-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Modern Dashboard</h3>
+                    <p>Modern gradient-based dashboard with smooth animations</p>
+                    <div class="theme-badge">🚀 Modern</div>
+                </a>
+                
+                <a href="/professional" class="theme-card professional-theme">
+                    <div class="theme-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>Professional Dashboard</h3>
+                    <p>Clean professional dashboard for business presentations</p>
+                    <div class="theme-badge">💼 Professional</div>
+                </a>
+            </div>
+        </div>
 
         <div class="dashboard">
             <div class="section backends">
@@ -103,5 +146,6 @@
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='hackathon_dashboard.js') }}"></script>
 </body>
 </html>

@@ -74,13 +74,13 @@ class EnhancedNotificationSystem {
         this.isMonitoring = true;
         console.log('🔍 Starting real-time monitoring...');
         
-        // Monitor every 3 seconds
+        // Monitor every 30 seconds (reduced frequency)
         this.monitoringInterval = setInterval(() => {
             this.checkJobStatusChanges();
             this.checkBackendStatusChanges();
             this.checkSystemHealth();
             this.checkQueueChanges();
-        }, 3000);
+        }, 30000);
     }
 
     stopMonitoring() {

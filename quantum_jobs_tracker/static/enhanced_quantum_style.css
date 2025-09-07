@@ -282,7 +282,7 @@ html, body {
     box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1);
 }
 
-.toggle-btn, .save-api-btn {
+.toggle-btn, .save-api-btn, .skip-api-btn {
     width: 2.5rem;
     height: 2.5rem;
     border: none;
@@ -296,9 +296,31 @@ html, body {
     transition: all var(--transition-fast);
 }
 
-.toggle-btn:hover, .save-api-btn:hover {
+.toggle-btn:hover {
     background: var(--accent-cyan);
     transform: scale(1.1);
+}
+
+.save-api-btn:hover {
+    background: var(--accent-green);
+    transform: scale(1.1);
+}
+
+.skip-api-btn:hover {
+    background: var(--accent-orange);
+    transform: scale(1.1);
+}
+
+.api-input-info {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.api-input-info i {
+    color: var(--accent-cyan);
+    margin-right: 0.5rem;
 }
 
 /* Enhanced Header Styles */

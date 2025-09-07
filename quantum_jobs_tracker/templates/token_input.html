@@ -250,6 +250,8 @@
                         crn: crn 
                     })
                 });
+                // Store token locally for visualizer fallback
+                localStorage.setItem('ibmq_token', token);
                 
                 const data = await response.json();
                 

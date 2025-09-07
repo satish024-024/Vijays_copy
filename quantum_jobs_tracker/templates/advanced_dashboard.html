@@ -40,7 +40,7 @@
             <div class="hackathon-info">
                 <div class="hackathon-badge">
                     <i class="fas fa-trophy"></i>
-                    <span>Amravati Quantum Hackathon</span>
+                    <span>Amaravathi Quantum Hackathon</span>
                 </div>
                 <div class="team-info">
                     <span class="team-name">Quantum Spark</span>
@@ -50,6 +50,10 @@
         </div>
         
         <div class="header-right">
+            <button class="btn btn-secondary theme-switcher-btn" id="theme-switcher-btn">
+                <i class="fas fa-palette"></i>
+                <span>Theme</span>
+            </button>
             <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme">
                 <i class="fas fa-moon"></i>
             </button>
@@ -65,7 +69,7 @@
         <div class="api-input-group">
             <input type="password" 
                    id="api-token" 
-                   placeholder="Enter IBM Quantum API Token" 
+                   placeholder="Enter IBM Quantum API Token (Optional)" 
                    class="api-input"
                    autocomplete="off"
                    autocorrect="off"
@@ -80,7 +84,13 @@
             </button>
             <button type="button" id="save-api" class="save-api-btn" aria-label="Save API token">
                 <i class="fas fa-check"></i>
-                </button>
+            </button>
+            <button type="button" id="skip-api" class="skip-api-btn" aria-label="Skip API token">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="api-input-info">
+            <p><i class="fas fa-info-circle"></i> You can skip this step to use the dashboard in demo mode</p>
         </div>
     </div>
 
@@ -712,8 +722,8 @@
     <!-- Enhanced Notification System -->
     <script src="static/enhanced_notifications.js"></script>
     
-    <!-- AI Integration with Google Gemini -->
-    <script src="static/ai_integration.js"></script>
+    <!-- AI Integration with Google Gemini (Optional) -->
+    <!-- <script src="static/ai_integration.js"></script> -->
     
     <!-- Backend Comparison System -->
     <script src="static/backend_comparison.js"></script>
@@ -795,6 +805,12 @@
             }
         });
     </script>
+    
+    <!-- Theme Switcher -->
+    <script src="/static/theme_switcher.js"></script>
+    
+    <!-- Main Dashboard Script -->
+    <script src="/static/hackathon_dashboard.js"></script>
     
 </body>
 </html>

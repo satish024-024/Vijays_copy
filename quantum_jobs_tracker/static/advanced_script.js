@@ -27,15 +27,63 @@ class QuantumDashboard {
         this.blochState = this.quantumStates[this.currentStateIndex];
 
         this.init();
+        this.setupAPIHandlers();
         
-        // Fetch real data immediately
+        // Initialize widgets once (no immediate updates)
         setTimeout(() => {
-            this.updateAllWidgets();
-            this.updateQuantumMetrics();
-            this.updateCircuitVisualization();
-            this.updateMeasurementResults();
-            this.loadQuantumState();
-        }, 500);
+            this.initializeWidgetsOnce();
+        }, 1000);
+    }
+
+    setupAPIHandlers() {
+        // Handle skip API button
+        const skipApiBtn = document.getElementById('skip-api');
+        if (skipApiBtn) {
+            skipApiBtn.addEventListener('click', () => {
+                console.log('🚫 API token skipped - using demo mode');
+                this.hideAPIInput();
+                this.showNotification('Using demo mode - no real quantum data', 'info');
+            });
+        }
+
+        // Handle save API button
+        const saveApiBtn = document.getElementById('save-api');
+        if (saveApiBtn) {
+            saveApiBtn.addEventListener('click', () => {
+                const token = document.getElementById('api-token').value;
+                if (token && token.length >= 20) {
+                    console.log('✅ API token saved');
+                    this.hideAPIInput();
+                    this.showNotification('API token saved successfully', 'success');
+                } else {
+                    this.showNotification('Please enter a valid API token', 'error');
+                }
+            });
+        }
+    }
+
+    hideAPIInput() {
+        const apiContainer = document.getElementById('api-input-container');
+        if (apiContainer) {
+            apiContainer.style.display = 'none';
+        }
+        // Show the main dashboard content
+        const mainContent = document.querySelector('.dashboard-main');
+        if (mainContent) {
+            mainContent.style.display = 'block';
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        console.log(`📢 ${type.toUpperCase()}: ${message}`);
+        // Simple notification - could be enhanced with a proper notification system
+    }
+
+    hideAllLoadingAnimations() {
+        const widgets = ['backends', 'jobs', 'circuit', 'entanglement', 'results', 'bloch', 'quantum-state', 'performance'];
+        widgets.forEach(widgetId => {
+            this.hideLoadingAnimation(widgetId);
+        });
     }
 
     // Generate realistic quantum states for visualization
@@ -703,9 +751,11 @@ class QuantumDashboard {
     }
 
     startRealTimeUpdates() {
+        // Real-time updates with slower frequency (every 2 minutes)
+        console.log('🔄 Starting real-time updates every 2 minutes...');
         this.updateInterval = setInterval(() => {
             this.updateAllWidgets();
-        }, 30000);
+        }, 120000); // 2 minutes = 120,000 milliseconds
     }
 
     stopRealTimeUpdates() {
@@ -831,48 +881,19 @@ class QuantumDashboard {
         this.showLoadingAnimation('performance', 'Analyzing Performance Metrics...');
 
         try {
-            setTimeout(() => {
-                this.initializeEntanglementWidget();
-            }, 500);
-            
-            setTimeout(() => {
-                this.initializeResultsWidget();
-            }, 1000);
-            
-            setTimeout(() => {
-                this.initializeBlochSphereWidget();
-            }, 1200);
-            
-            setTimeout(() => {
-                this.initializePerformanceWidget();
-            }, 1500);
-            
-            setTimeout(() => {
-                this.initializeQuantumStateWidget();
-            }, 2000);
-            
-            await this.initializeBlochSphereWidget();
-            await this.initializeCircuitWidget();
-            
-            await this.updateAllWidgets();
+            // Initialize widgets without excessive timeouts
+            this.initializeEntanglementWidget();
+            this.initializeResultsWidget();
+            this.initializeBlochSphereWidget();
+            this.initializePerformanceWidget();
+            this.initializeQuantumStateWidget();
+            this.initializeCircuitWidget();
             
             console.log('✅ All widgets initialized successfully');
         } catch (error) {
             console.error('❌ Error initializing widgets:', error);
-            this.forceHideAllLoadingAnimations();
+            this.hideAllLoadingAnimations();
         }
-    }
-
-    forceHideAllLoadingAnimations() {
-        console.log('🔄 Force hiding all loading animations...');
-        const widgets = ['backends', 'jobs', 'circuit', 'entanglement', 'results', 'bloch', 'quantum-state', 'performance'];
-        
-        widgets.forEach((widgetId, index) => {
-            setTimeout(() => {
-                console.log(`🔄 Hiding loading for ${widgetId} (${index + 1}/${widgets.length})`);
-                this.hideLoadingAnimation(widgetId);
-            }, index * 100);
-        });
     }
 
     async initializeCircuitWidget() {
@@ -995,38 +1016,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make viewJobDetails globally accessible
     QuantumDashboard.makeGlobal();
     
-    // Force initialize all widgets after a short delay
+    // Initialize widgets once (no force reloading)
     setTimeout(() => {
         if (window.dashboard) {
-            console.log('🔄 Force initializing all widgets...');
-            window.dashboard.forceInitializeAllWidgets();
+            console.log('🚀 Initializing widgets once...');
+            window.dashboard.initializeWidgetsOnce();
         }
     }, 1000);
 });
 
-// Add force initialization function to QuantumDashboard
-QuantumDashboard.prototype.forceInitializeAllWidgets = function() {
-    console.log('🚀 Force initializing all widgets...');
+// Add one-time initialization function to QuantumDashboard
+QuantumDashboard.prototype.initializeWidgetsOnce = function() {
+    console.log('🚀 Initializing widgets once (no reloading)...');
     
-    this.checkWidgetStatus();
-    
+    // Initialize widgets only once
     this.initializeEntanglementWidget();
     this.initializeResultsWidget();
     this.initializeBlochSphereWidget();
     this.initializePerformanceWidget();
     this.initializeQuantumStateWidget();
     
+    // Update widgets once
     this.updateBackendsWidget();
     this.updateJobsWidget();
-    
     this.updateMetricsWidgets();
-    this.updateAllWidgets();
     
+    // Hide loading animations after a short delay
     setTimeout(() => {
-        this.forceHideAllLoadingAnimations();
-    }, 500);
+        this.hideAllLoadingAnimations();
+        // Start real-time updates after initial loading is complete
+        this.startRealTimeUpdates();
+    }, 2000);
     
-    console.log('✅ All widgets force initialized');
+    console.log('✅ All widgets initialized once');
 };
 
 // Add widget status check function
