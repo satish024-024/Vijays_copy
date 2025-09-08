@@ -31,30 +31,27 @@ class HackathonDashboard {
     }
 
     setupEventListeners() {
-        // Customization panel
-        document.getElementById('customize-btn').addEventListener('click', () => {
-            this.toggleCustomizationPanel();
-        });
+        // Helper to safely bind events when element exists
+        const on = (id, evt, handler) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener(evt, handler);
+        };
 
-        document.getElementById('close-customization').addEventListener('click', () => {
-            this.toggleCustomizationPanel();
-        });
+        // Customization panel
+        on('customize-btn', 'click', () => this.toggleCustomizationPanel());
+        on('close-customization', 'click', () => this.toggleCustomizationPanel());
 
         // Refresh all button
-        document.getElementById('refresh-all-btn').addEventListener('click', () => {
-            this.refreshAllWidgets();
-        });
+        on('refresh-all-btn', 'click', () => this.refreshAllWidgets());
 
         // Popup modal
-        document.getElementById('popup-close').addEventListener('click', () => {
-            this.closePopup();
-        });
-
-        document.getElementById('popup-overlay').addEventListener('click', (e) => {
-            if (e.target.id === 'popup-overlay') {
-                this.closePopup();
-            }
-        });
+        on('popup-close', 'click', () => this.closePopup());
+        const overlay = document.getElementById('popup-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'popup-overlay') this.closePopup();
+            });
+        }
 
         // Widget controls
         document.addEventListener('click', (e) => {
@@ -77,11 +74,12 @@ class HackathonDashboard {
         });
 
         // AI input
-        document.getElementById('ai-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.handleAIQuery();
-            }
-        });
+        const aiInput = document.getElementById('ai-input');
+        if (aiInput) {
+            aiInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.handleAIQuery();
+            });
+        }
     }
 
     setupAnimations() {

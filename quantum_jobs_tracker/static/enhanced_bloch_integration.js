@@ -98,6 +98,14 @@ class EnhancedBlochSphere {
         
         // Update state display
         this.updateStateDisplay();
+
+        // Hide loading UI and reveal content in advanced widget
+        try {
+            const loading = document.getElementById('bloch-loading');
+            if (loading) loading.style.display = 'none';
+            const content = document.getElementById('bloch-container');
+            if (content) content.style.display = 'block';
+        } catch (_) {}
     }
 
     createBlochSphere(containerId) {

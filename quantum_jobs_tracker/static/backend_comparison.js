@@ -13,15 +13,17 @@ class BackendComparisonSystem {
 
     init() {
         console.log('🔄 Initializing Backend Comparison System...');
+        this.injectComparisonStyles();
         this.setupComparisonInterface();
         this.startDataCollection();
         this.createComparisonWidget();
     }
 
     setupComparisonInterface() {
-        // Add comparison button to backends widget
-        const backendsWidget = document.querySelector('.backends-widget .widget-controls');
-        if (backendsWidget) {
+        // Add comparison button to backends widget (supports multiple dashboard templates)
+        const backendsWidget = document.querySelector('.backends-widget .widget-controls')
+            || document.querySelector('[data-widget="backends"] .widget-controls');
+        if (backendsWidget && !backendsWidget.querySelector('.compare-btn')) {
             const compareBtn = document.createElement('button');
             compareBtn.className = 'widget-btn compare-btn';
             compareBtn.innerHTML = '<i class="fas fa-balance-scale"></i>';
@@ -29,6 +31,25 @@ class BackendComparisonSystem {
             compareBtn.addEventListener('click', () => this.showComparisonModal());
             backendsWidget.appendChild(compareBtn);
         }
+    }
+
+    injectComparisonStyles() {
+        if (document.getElementById('comparison-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'comparison-styles';
+        style.textContent = `
+            .comparison-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1700;opacity:0;visibility:hidden;transition:all .3s ease}
+            .comparison-modal.active{opacity:1;visibility:visible}
+            .comparison-modal .modal-content{background:rgba(20,20,30,0.95);border:1px solid rgba(255,255,255,0.15);border-radius:16px;max-width:90vw;max-height:90vh;width:1200px;overflow:auto;box-shadow:0 16px 64px rgba(0,0,0,0.45)}
+            .comparison-modal .modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.1);color:#fff}
+            .comparison-modal .modal-body{padding:16px;color:#e0e0e0}
+            .comparison-controls{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+            .comparison-table{width:100%;border-collapse:collapse}
+            .comparison-table th{background:rgba(0,245,255,0.08);color:#fff;text-align:left;padding:12px;border-bottom:1px solid rgba(255,255,255,0.1)}
+            .comparison-table td{padding:12px;border-bottom:1px solid rgba(255,255,255,0.06)}
+            .refresh-btn{padding:8px 12px;border:none;border-radius:8px;background:linear-gradient(135deg,#00f5ff,#00d4ff);color:#000;cursor:pointer}
+        `;
+        document.head.appendChild(style);
     }
 
     createComparisonWidget() {
@@ -58,9 +79,27 @@ class BackendComparisonSystem {
                             <label>Sort by:</label>
                             <select id="sort-option">
                                 <option value="queue">Queue Length</option>
+                                <option value="wait">Predicted Wait</option>
                                 <option value="qubits">Number of Qubits</option>
-                                <option value="availability">Availability</option>
-                                <option value="performance">Performance Score</option>
+                                <option value="performance">Score</option>
+                            </select>
+                        </div>
+                        <div class="sort-section">
+                            <label>Algorithm:</label>
+                            <select id="algo-option">
+                                <option value="auto">Auto</option>
+                                <option value="balanced">Balanced</option>
+                                <option value="fastest_queue">Fastest Queue</option>
+                                <option value="low_latency">Low Latency</option>
+                                <option value="highest_qubits">Highest Qubits</option>
+                            </select>
+                        </div>
+                        <div class="sort-section">
+                            <label>Complexity:</label>
+                            <select id="complexity-option">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
                             </select>
                         </div>
                         <button class="refresh-btn" id="refresh-comparison">
@@ -75,9 +114,9 @@ class BackendComparisonSystem {
                                     <th>Status</th>
                                     <th>Qubits</th>
                                     <th>Queue</th>
-                                    <th>Avg Wait Time</th>
-                                    <th>Success Rate</th>
-                                    <th>Performance</th>
+                                    <th>Predicted Wait</th>
+                                    <th>Throughput</th>
+                                    <th>Score</th>
                                     <th>Recommendation</th>
                                 </tr>
                             </thead>
@@ -107,6 +146,8 @@ class BackendComparisonSystem {
         const refreshBtn = document.getElementById('refresh-comparison');
         const statusFilter = document.getElementById('status-filter');
         const sortOption = document.getElementById('sort-option');
+        const algoOption = document.getElementById('algo-option');
+        const complexityOption = document.getElementById('complexity-option');
 
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.closeComparisonModal());
@@ -120,24 +161,22 @@ class BackendComparisonSystem {
             statusFilter.addEventListener('change', () => this.filterAndSortBackends());
         }
 
-        if (sortOption) {
-            sortOption.addEventListener('change', () => this.filterAndSortBackends());
-        }
+        if (sortOption) sortOption.addEventListener('change', () => this.filterAndSortBackends());
+        if (algoOption) algoOption.addEventListener('change', () => this.collectBackendData());
+        if (complexityOption) complexityOption.addEventListener('change', () => this.collectBackendData());
     }
 
     startDataCollection() {
-        // Collect backend data every 5 seconds
+        // Collect backend data every 10 seconds from real endpoints
         this.updateInterval = setInterval(() => {
             this.collectBackendData();
-        }, 5000);
-        
+        }, 10000);
         // Initial data collection
         this.collectBackendData();
     }
 
     async collectBackendData() {
         try {
-            // Simulate fetching real backend data
             const backendData = await this.fetchBackendData();
             
             backendData.forEach(backend => {
@@ -146,8 +185,7 @@ class BackendComparisonSystem {
                 // Store current state
                 this.backends.set(backendName, {
                     ...backend,
-                    timestamp: Date.now(),
-                    performanceScore: this.calculatePerformanceScore(backend)
+                    timestamp: Date.now()
                 });
                 
                 // Store queue history
@@ -172,42 +210,55 @@ class BackendComparisonSystem {
             
         } catch (error) {
             console.error('Failed to collect backend data:', error);
+            this.showNotification('Failed to load real backend data', 'error');
         }
     }
 
     async fetchBackendData() {
-        // Simulate real backend data with realistic variations
-        const baseBackends = [
-            { name: 'ibmq_qasm_simulator', qubits: 32, baseQueue: 0, successRate: 0.99 },
-            { name: 'ibm_oslo', qubits: 7, baseQueue: 3, successRate: 0.95 },
-            { name: 'ibm_nairobi', qubits: 7, baseQueue: 1, successRate: 0.94 },
-            { name: 'ibm_lagos', qubits: 7, baseQueue: 2, successRate: 0.93 },
-            { name: 'ibm_perth', qubits: 7, baseQueue: 0, successRate: 0.96 }
-        ];
-        
-        return baseBackends.map(backend => ({
-            ...backend,
-            status: 'online',
-            queue: Math.max(0, backend.baseQueue + Math.floor(Math.random() * 3) - 1),
-            avgWaitTime: this.calculateAverageWaitTime(backend.baseQueue),
-            lastUpdate: Date.now()
-        }));
+        // Fetch real data from backend APIs
+        const algo = document.getElementById('algo-option')?.value || 'auto';
+        const complexity = document.getElementById('complexity-option')?.value || 'medium';
+        const [backendsRes, predsRes, recsRes] = await Promise.all([
+            fetch('/api/backends'),
+            fetch(`/api/predictions?job_complexity=${encodeURIComponent(complexity)}`),
+            fetch(`/api/recommendations?algorithm=${encodeURIComponent(algo)}&top_k=999&job_complexity=${encodeURIComponent(complexity)}`)
+        ]);
+        if (!backendsRes.ok) throw new Error(`Backends HTTP ${backendsRes.status}`);
+        const backendsJson = await backendsRes.json();
+        const predsJson = predsRes.ok ? await predsRes.json() : { predictions: [] };
+        const recsJson = recsRes.ok ? await recsRes.json() : { recommendations: [] };
+
+        const predictions = Array.isArray(predsJson.predictions) ? predsJson.predictions : [];
+        const recommendations = Array.isArray(recsJson.recommendations) ? recsJson.recommendations : [];
+
+        const predByName = new Map(predictions.map(p => [p.name, p]));
+        const rankByName = new Map(recommendations.map((r, i) => [r.name, { score: r.score, rank: i + 1, wait: r.predicted_wait_seconds, throughput: r.throughput_jobs_per_hour, explanation: r.explanation, algorithm: r.algorithm }]));
+
+        const items = (Array.isArray(backendsJson) ? backendsJson : []).map(b => {
+            const name = b.name || 'unknown';
+            const pred = predByName.get(name);
+            const rinfo = rankByName.get(name) || {};
+            return {
+                name,
+                status: b.operational ? 'online' : 'offline',
+                qubits: typeof b.num_qubits === 'number' ? b.num_qubits : (b.num_qubits || 0),
+                queue: typeof b.pending_jobs === 'number' ? b.pending_jobs : (b.pending_jobs || 0),
+                avgWaitTime: typeof (rinfo.wait ?? pred?.predicted_wait_seconds) === 'number' ? (rinfo.wait ?? pred?.predicted_wait_seconds) : 0,
+                throughput: typeof (rinfo.throughput ?? pred?.throughput_jobs_per_hour) === 'number' ? (rinfo.throughput ?? pred?.throughput_jobs_per_hour) : 0,
+                performanceScore: typeof rinfo.score === 'number' ? Math.round(rinfo.score * 100) : 0,
+                recommendationRank: typeof rinfo.rank === 'number' ? rinfo.rank : null,
+                explanation: rinfo.explanation || null,
+                algorithm: rinfo.algorithm || (document.getElementById('algo-option')?.value || 'auto'),
+                lastUpdate: Date.now()
+            };
+        });
+
+        return items;
     }
 
-    calculateAverageWaitTime(baseQueue) {
-        // Simulate realistic wait times based on queue length
-        const baseTime = baseQueue * 2; // 2 minutes per job in queue
-        const variation = Math.random() * 0.5; // ±25% variation
-        return Math.round((baseTime + variation) * 60); // Convert to seconds
-    }
-
-    calculatePerformanceScore(backend) {
-        // Calculate performance score based on multiple factors
-        const queueScore = Math.max(0, 100 - (backend.queue * 10)); // Lower queue = higher score
-        const successScore = backend.successRate * 100;
-        const qubitScore = Math.min(100, (backend.qubits / 32) * 100); // Normalize to 32 qubits
-        
-        return Math.round((queueScore * 0.4 + successScore * 0.4 + qubitScore * 0.2));
+    formatThroughput(value) {
+        if (!value) return '—';
+        return `${value.toFixed(1)} jobs/h`;
     }
 
     updateComparisonData() {
@@ -232,12 +283,12 @@ class BackendComparisonSystem {
             switch (sortOption) {
                 case 'queue':
                     return a.queue - b.queue;
+                case 'wait':
+                    return (a.avgWaitTime ?? Infinity) - (b.avgWaitTime ?? Infinity);
                 case 'qubits':
                     return b.qubits - a.qubits;
-                case 'availability':
-                    return b.performanceScore - a.performanceScore;
                 case 'performance':
-                    return b.performanceScore - a.performanceScore;
+                    return (b.performanceScore ?? -1) - (a.performanceScore ?? -1);
                 default:
                     return 0;
             }
@@ -263,7 +314,7 @@ class BackendComparisonSystem {
                 <td class="backend-name">
                     <div class="backend-info">
                         <strong>${backend.name}</strong>
-                        <span class="backend-type">${backend.qubits === 32 ? 'Simulator' : 'Hardware'}</span>
+                        <span class="backend-type">Hardware</span>
                     </div>
                 </td>
                 <td class="status-cell">
@@ -285,22 +336,22 @@ class BackendComparisonSystem {
                 </td>
                 <td class="success-rate-cell">
                     <div class="success-rate">
-                        <span class="rate-value">${(backend.successRate * 100).toFixed(1)}%</span>
+                        <span class="rate-value">${this.formatThroughput(backend.throughput)}</span>
                         <div class="rate-bar">
-                            <div class="rate-fill" style="width: ${backend.successRate * 100}%"></div>
+                            <div class="rate-fill" style="width: ${Math.min(100, backend.throughput || 0)}%"></div>
                         </div>
                     </div>
                 </td>
                 <td class="performance-cell">
                     <div class="performance-score">
-                        <span class="score-value">${backend.performanceScore}</span>
+                        <span class="score-value">${backend.performanceScore || '—'}</span>
                         <div class="score-bar">
-                            <div class="score-fill" style="width: ${backend.performanceScore}%"></div>
+                            <div class="score-fill" style="width: ${backend.performanceScore || 0}%"></div>
                         </div>
                     </div>
                 </td>
                 <td class="recommendation-cell">
-                    <span class="recommendation ${recommendation.type}">
+                    <span class="recommendation ${recommendation.type}" title="${backend.explanation || ''}">
                         <i class="fas fa-${recommendation.icon}"></i>
                         ${recommendation.text}
                     </span>
@@ -312,31 +363,22 @@ class BackendComparisonSystem {
     }
 
     getRecommendation(backend) {
-        if (backend.queue === 0 && backend.status === 'online') {
-            return {
-                type: 'excellent',
-                icon: 'star',
-                text: 'Best Choice'
-            };
-        } else if (backend.queue <= 2 && backend.performanceScore > 80) {
-            return {
-                type: 'good',
-                icon: 'thumbs-up',
-                text: 'Recommended'
-            };
-        } else if (backend.queue <= 5) {
-            return {
-                type: 'moderate',
-                icon: 'clock',
-                text: 'Moderate Wait'
-            };
-        } else {
-            return {
-                type: 'poor',
-                icon: 'exclamation-triangle',
-                text: 'Long Wait'
-            };
+        if (backend.status !== 'online') {
+            return { type: 'poor', icon: 'ban', text: 'Unavailable' };
         }
+        if (backend.recommendationRank === 1) {
+            return { type: 'excellent', icon: 'star', text: 'Best Choice' };
+        }
+        if (backend.recommendationRank && backend.recommendationRank <= 3) {
+            return { type: 'good', icon: 'thumbs-up', text: 'Recommended' };
+        }
+        if ((backend.avgWaitTime ?? Infinity) <= 300) {
+            return { type: 'good', icon: 'thumbs-up', text: 'Low Wait' };
+        }
+        if (backend.queue <= 5) {
+            return { type: 'moderate', icon: 'clock', text: 'Moderate Wait' };
+        }
+        return { type: 'poor', icon: 'exclamation-triangle', text: 'Long Wait' };
     }
 
     getQueueClass(queue) {
@@ -369,6 +411,8 @@ class BackendComparisonSystem {
         if (!insightsContent) return;
         
         const insights = this.analyzeBackendData();
+        const algo = document.getElementById('algo-option')?.value || 'auto';
+        const complexity = document.getElementById('complexity-option')?.value || 'medium';
         insightsContent.innerHTML = insights.map(insight => `
             <div class="insight-item ${insight.type}">
                 <i class="fas fa-${insight.icon}"></i>
@@ -377,7 +421,15 @@ class BackendComparisonSystem {
                     <p>${insight.description}</p>
                 </div>
             </div>
-        `).join('');
+        `).join('') + `
+            <div class="insight-item info">
+                <i class="fas fa-sliders-h"></i>
+                <div class="insight-content">
+                    <h4>Recommendation Settings</h4>
+                    <p>Algorithm: <strong>${algo}</strong>, Complexity: <strong>${complexity}</strong></p>
+                </div>
+            </div>
+        `;
     }
 
     analyzeBackendData() {

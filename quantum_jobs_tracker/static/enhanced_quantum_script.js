@@ -23,6 +23,7 @@ class EnhancedQuantumDashboard {
         this.updateInterval = null;
         this.animationQueue = [];
         this.isAnimating = false;
+        this.isRefreshing = false;
 
         // Initialize with more realistic quantum states
         this.quantumStates = this.generateRealisticQuantumStates();
@@ -104,8 +105,8 @@ class EnhancedQuantumDashboard {
         // Setup theme toggle with enhanced animations
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                this.toggleTheme();
+            themeToggle.addEventListener('click', (e) => {
+                this.toggleTheme(e.currentTarget);
             });
         }
     }
@@ -146,12 +147,13 @@ class EnhancedQuantumDashboard {
         }
     }
 
-    toggleTheme() {
+    toggleTheme(triggerEl) {
         const newTheme = this.state.currentTheme === 'dark' ? 'light' : 'dark';
         this.setTheme(newTheme);
         
         // Add ripple effect to theme toggle
-        this.createRippleEffect(event.target);
+        const el = triggerEl || document.getElementById('theme-toggle');
+        if (el) this.createRippleEffect(el);
     }
 
     // Enhanced event listeners with animations
@@ -252,7 +254,7 @@ class EnhancedQuantumDashboard {
         const action = button.dataset.action;
         
         // Add click animation
-        this.animateButtonClick(button);
+        this.animateButtonClick(button, event);
         
         // Handle different actions
         switch (action) {
@@ -286,9 +288,9 @@ class EnhancedQuantumDashboard {
     }
 
     // Enhanced button click animation
-    animateButtonClick(button) {
+    animateButtonClick(button, evt) {
         // Create ripple effect
-        this.createRippleEffect(button);
+        this.createRippleEffect(button, evt);
         
         // Scale animation
         button.style.transform = 'scale(0.95)';
@@ -298,12 +300,12 @@ class EnhancedQuantumDashboard {
     }
 
     // Ripple effect for buttons
-    createRippleEffect(element) {
+    createRippleEffect(element, evt) {
         const ripple = document.createElement('span');
         const rect = element.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);
-        const x = event.clientX - rect.left - size / 2;
-        const y = event.clientY - rect.top - size / 2;
+        const x = ((evt && evt.clientX) ? evt.clientX : (rect.left + rect.width / 2)) - rect.left - size / 2;
+        const y = ((evt && evt.clientY) ? evt.clientY : (rect.top + rect.height / 2)) - rect.top - size / 2;
         
         ripple.style.cssText = `
             position: absolute;
@@ -335,6 +337,10 @@ class EnhancedQuantumDashboard {
                               document.getElementById(`${widgetId}-display`) ||
                               document.getElementById(`${widgetId}-metrics`);
         
+        if (contentElement && contentElement.style && contentElement.style.display === 'block') {
+            return;
+        }
+
         if (loadingElement) {
             loadingElement.style.display = 'flex';
             loadingElement.style.opacity = '1';
@@ -470,6 +476,24 @@ class EnhancedQuantumDashboard {
         });
     }
 
+    // Public helper so other modules can push notifications
+    showNotification(message, type = 'info') {
+        const list = document.getElementById('notification-list');
+        if (!list) {
+            console.log(`📢 [${type}] ${message}`);
+            return;
+        }
+        const item = this.createNotificationElement({
+            type,
+            title: type.charAt(0).toUpperCase() + type.slice(1),
+            message,
+            time: 'just now'
+        });
+        list.prepend(item);
+        this.animateElement(item, 'slideInRight');
+        setTimeout(() => { try { item.remove(); } catch (_) {} }, 6000);
+    }
+
     createNotificationElement(notification) {
         const element = document.createElement('div');
         element.className = `notification-item ${notification.type}`;
@@ -527,14 +551,46 @@ class EnhancedQuantumDashboard {
 
     // Enhanced real-time updates
     startRealTimeUpdates() {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
         this.updateInterval = setInterval(() => {
-            this.updateAllWidgets();
-        }, 5000); // Update every 5 seconds
+            this.refreshCycle();
+        }, 30000); // Update every 30 seconds
+    }
+
+    async refreshCycle() {
+        if (this.isRefreshing) return;
+        this.isRefreshing = true;
+        try {
+            await Promise.all([
+                this.updateBackends(true),
+                this.updateJobs(true),
+                this.updateQuantumMetrics(),
+                this.fetchRealQuantumState?.(true) || Promise.resolve(),
+                this.fetchRealCircuitData?.(true) || Promise.resolve(),
+                this.fetchRealMeasurementResults?.(true) || Promise.resolve()
+            ]);
+        } catch (e) {
+            console.error('Quiet refresh failed:', e);
+        } finally {
+            this.isRefreshing = false;
+        }
     }
 
     // Fetch ONLY real data from IBM Quantum API endpoints
     async fetchRealDataFromAPIs() {
         console.log('🔄 Fetching REAL IBM Quantum data from API endpoints...');
+        // show loading states for widgets to avoid frozen spinners later
+        try {
+            this.showLoadingAnimation('backends', 'Loading Real Quantum Backends...');
+            this.showLoadingAnimation('jobs', 'Loading Real Quantum Jobs...');
+            this.showLoadingAnimation('quantum-state', 'Calculating Quantum State...');
+            this.showLoadingAnimation('circuit', 'Initializing 3D Quantum Circuit...');
+            this.showLoadingAnimation('results', 'Loading Measurement Results...');
+            this.showLoadingAnimation('entanglement', 'Calculating Entanglement...');
+            this.showLoadingAnimation('performance', 'Analyzing Performance Metrics...');
+        } catch (e) {}
         
         try {
             // Fetch real metrics data
@@ -554,6 +610,7 @@ class EnhancedQuantumDashboard {
             
             // Fetch real measurement results
             await this.fetchRealMeasurementResults();
+            try { await this.fetchPerformanceMetrics(); } catch (e) {}
             
             console.log('✅ All real data fetched successfully from IBM Quantum APIs');
         } catch (error) {
@@ -678,8 +735,8 @@ class EnhancedQuantumDashboard {
     }
 
     // Update backends with animation - REAL DATA ONLY
-    async updateBackends() {
-        this.showLoadingAnimation('backends', 'Loading Real Quantum Backends...');
+    async updateBackends(quiet = false) {
+        if (!quiet) this.showLoadingAnimation('backends', 'Loading Real Quantum Backends...');
         
         try {
             const response = await fetch('/api/backends');
@@ -689,15 +746,15 @@ class EnhancedQuantumDashboard {
             const data = await response.json();
             
             if (data && data.length > 0) {
-                this.hideLoadingAnimation('backends');
+                if (!quiet) this.hideLoadingAnimation('backends');
                 this.populateBackends(data);
             } else {
-                this.hideLoadingAnimation('backends');
+                if (!quiet) this.hideLoadingAnimation('backends');
                 this.showNoBackendsMessage();
             }
         } catch (error) {
             console.error('Error fetching real backends:', error);
-            this.hideLoadingAnimation('backends');
+            if (!quiet) this.hideLoadingAnimation('backends');
             this.showBackendError();
         }
     }
@@ -706,14 +763,21 @@ class EnhancedQuantumDashboard {
         const backendsList = document.getElementById('backends-content');
         if (!backendsList) return;
 
+        // Deduplicate by backend name
+        const seen = new Set();
+        const deduped = [];
+        backends.forEach(b => {
+            const name = b.name || 'unknown';
+            if (!seen.has(name)) {
+                seen.add(name);
+                deduped.push(b);
+            }
+        });
+
         backendsList.innerHTML = '';
-        
-        backends.forEach((backend, index) => {
-            setTimeout(() => {
-                const backendElement = this.createBackendElement(backend);
-                backendsList.appendChild(backendElement);
-                this.animateElement(backendElement, 'slideInLeft');
-            }, index * 100);
+        deduped.forEach((backend) => {
+            const backendElement = this.createBackendElement(backend);
+            backendsList.appendChild(backendElement);
         });
     }
     
@@ -757,8 +821,8 @@ class EnhancedQuantumDashboard {
     }
 
     // Update jobs with animation - REAL DATA ONLY
-    async updateJobs() {
-        this.showLoadingAnimation('jobs', 'Loading Real Quantum Jobs...');
+    async updateJobs(quiet = false) {
+        if (!quiet) this.showLoadingAnimation('jobs', 'Loading Real Quantum Jobs...');
         
         try {
             const response = await fetch('/api/jobs');
@@ -768,15 +832,15 @@ class EnhancedQuantumDashboard {
             const data = await response.json();
             
             if (data && data.length > 0) {
-                this.hideLoadingAnimation('jobs');
+                if (!quiet) this.hideLoadingAnimation('jobs');
                 this.populateJobs(data);
             } else {
-                this.hideLoadingAnimation('jobs');
+                if (!quiet) this.hideLoadingAnimation('jobs');
                 this.showNoJobsMessage();
             }
         } catch (error) {
             console.error('Error fetching real jobs:', error);
-            this.hideLoadingAnimation('jobs');
+            if (!quiet) this.hideLoadingAnimation('jobs');
             this.showJobsError();
         }
     }
@@ -785,14 +849,18 @@ class EnhancedQuantumDashboard {
         const jobsBody = document.getElementById('jobs-body');
         if (!jobsBody) return;
 
+        // Deduplicate by job id and limit rows for smoothness
+        const map = new Map();
+        jobs.forEach(j => {
+            const id = j.id || j.job_id || String(j);
+            if (!map.has(id)) map.set(id, j);
+        });
+        const deduped = Array.from(map.values()).slice(0, 50);
+
         jobsBody.innerHTML = '';
-        
-        jobs.forEach((job, index) => {
-            setTimeout(() => {
-                const jobElement = this.createJobElement(job);
-                jobsBody.appendChild(jobElement);
-                this.animateElement(jobElement, 'fadeIn');
-            }, index * 150);
+        deduped.forEach((job) => {
+            const jobElement = this.createJobElement(job);
+            jobsBody.appendChild(jobElement);
         });
     }
     

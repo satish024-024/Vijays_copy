@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="static/enhanced_quantum_style.css">
     <link rel="stylesheet" href="static/3d_circuit_style.css">
+    <link rel="stylesheet" href="/static/bloch_sphere/main.css">
 </head>
 <body class="light-theme">
     <!-- Real Quantum Data Status Indicator -->
@@ -104,7 +105,7 @@
                 </div>
                 <div class="metric-content">
                     <h3>Active Backends</h3>
-                    <div class="metric-value" id="active-backends-value">-</div>
+                    <div class="metric-value" id="active-backends">-</div>
                     <div class="metric-trend">
                         <span>Loading...</span>
                     </div>
@@ -117,7 +118,7 @@
                 </div>
                 <div class="metric-content">
                     <h3>Total Jobs</h3>
-                    <div class="metric-value" id="total-jobs-value">-</div>
+                    <div class="metric-value" id="total-jobs">-</div>
                     <div class="metric-trend">
                         <span>Loading...</span>
                     </div>
@@ -130,20 +131,20 @@
                 </div>
                 <div class="metric-content">
                     <h3>Running Jobs</h3>
-                    <div class="metric-value" id="running-jobs-value">-</div>
+                    <div class="metric-value" id="running-jobs">-</div>
                     <div class="metric-trend">
                         <span>Loading...</span>
                     </div>
                 </div>
             </div>
 
-            <div class="metric-card" data-metric="queued-jobs">
+            <div class="metric-card" data-metric="success-rate">
                 <div class="metric-icon">
-                    <i class="fas fa-clock"></i>
+                    <i class="fas fa-percentage"></i>
                 </div>
                 <div class="metric-content">
-                    <h3>Queued Jobs</h3>
-                    <div class="metric-value" id="queued-jobs-value">-</div>
+                    <h3>Success Rate</h3>
+                    <div class="metric-value" id="success-rate">-</div>
                     <div class="metric-trend">
                         <span>Loading...</span>
                     </div>
@@ -154,7 +155,7 @@
         <!-- Widgets Grid -->
         <section class="widgets-grid">
             <!-- Quantum Backends Widget -->
-            <div class="widget-container backends-widget">
+            <div class="widget-container backends-widget widget" data-widget="backends">
                 <div class="widget-header">
                     <h2><i class="fas fa-server"></i> Quantum Backends</h2>
                     <div class="widget-controls">
@@ -170,32 +171,17 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <!-- Loading Screen -->
-                    <div class="loading-screen" id="backends-loading">
-                        <div class="loading-spinner">
-                            <div class="spinner-ring"></div>
-                        </div>
-                        <div class="loading-text">Loading Quantum Backends...</div>
-                        <div class="loading-progress">
-                            <div class="progress-bar" id="backends-progress"></div>
-                        </div>
-                    </div>
-                    <!-- Content -->
-                    <div class="backends-list" id="backends-content" style="display: none;">
-                        <!-- Backends will be populated by JavaScript -->
-                    </div>
+                    <div class="loading" id="backends-loading"><div class="spinner"></div><span>Loading quantum backends...</span></div>
+                    <div class="backends-list" id="backends-content" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- Active Jobs Widget -->
-            <div class="widget-container jobs-widget">
+            <div class="widget-container jobs-widget widget" data-widget="jobs">
                 <div class="widget-header">
                     <h2><i class="fas fa-tasks"></i> Active Jobs</h2>
                     <div class="widget-controls">
-                        <div class="search-container">
-                            <input type="text" placeholder="Search jobs..." class="search-input" id="jobs-search">
-                            <i class="fas fa-search search-icon"></i>
-                        </div>
+                        <div class="search-container" style="display:none"></div>
                         <button class="widget-btn" data-action="export">
                             <i class="fas fa-download"></i>
                         </button>
@@ -205,39 +191,13 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <!-- Loading Screen -->
-                    <div class="loading-screen" id="jobs-loading">
-                        <div class="loading-spinner">
-                            <div class="spinner-ring"></div>
-                        </div>
-                        <div class="loading-text">Loading Active Jobs...</div>
-                        <div class="loading-progress">
-                            <div class="progress-bar" id="jobs-progress"></div>
-                        </div>
-                    </div>
-                    <!-- Content -->
-                    <div class="table-container" id="jobs-content" style="display: none;">
-                        <table class="jobs-table" id="jobs-table">
-                            <thead>
-                                <tr>
-                                    <th>Job ID</th>
-                                    <th>Backend</th>
-                                    <th>Status</th>
-                                    <th>Qubits</th>
-                                    <th>Progress</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="jobs-body">
-                                <!-- Jobs will be populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="loading" id="jobs-loading"><div class="spinner"></div><span>Loading quantum jobs...</span></div>
+                    <div class="table-container" id="jobs-content" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- 3D Quantum Circuit Widget -->
-            <div class="widget-container circuit-widget">
+            <div class="widget-container circuit-widget widget" data-widget="circuit">
                 <div class="widget-header">
                     <h2><i class="fas fa-cube"></i> 3D Quantum Circuit</h2>
                     <div class="widget-controls">
@@ -256,25 +216,15 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <!-- Loading Screen -->
-                    <div class="loading-screen" id="circuit-loading">
-                        <div class="loading-spinner">
-                            <div class="spinner-ring"></div>
-                        </div>
-                        <div class="loading-text">Initializing 3D Quantum Circuit...</div>
-                        <div class="loading-progress">
-                            <div class="progress-bar" id="circuit-progress"></div>
-                        </div>
-                    </div>
-                    <!-- Content -->
-                    <div class="circuit-container" id="circuit-container" style="min-height: 400px; position: relative; display: none;">
-                        <div id="3d-quantum-circuit" style="width: 100%; height: 400px; position: relative; overflow: hidden;"></div>
+                    <div class="loading" id="circuit-loading"><div class="spinner"></div><span>Loading 3D circuit...</span></div>
+                    <div class="circuit-container" id="circuit-content" style="min-height: 300px; position: relative; display: none;">
+                        <div id="3d-quantum-circuit" style="width: 100%; height: 300px; position: relative;"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Entanglement Widget -->
-            <div class="widget-container entanglement-widget">
+            <div class="widget-container entanglement-widget widget" data-widget="entanglement">
                 <div class="widget-header">
                     <h2><i class="fas fa-link"></i> Entanglement</h2>
                     <div class="widget-controls">
@@ -287,23 +237,13 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <div class="loading-screen" id="entanglement-loading" style="display: none;">
-                        <div class="loading-spinner"><div class="spinner-ring"></div></div>
-                        <div class="loading-text">Calculating Entanglement...</div>
-                        <div class="loading-progress"><div class="progress-bar" id="entanglement-progress"></div></div>
-                    </div>
-                    <div class="entanglement-visualization" id="entanglement-content">
-                        <canvas id="entanglement-canvas" width="300" height="120"></canvas>
-                        <div class="entanglement-info">
-                            <span class="entanglement-label">Loading...</span>
-                            <span class="entanglement-fidelity">Fidelity: <span id="entanglement-fidelity">-</span></span>
-                        </div>
-                    </div>
+                    <div class="loading" id="entanglement-loading"><div class="spinner"></div><span>Loading entanglement data...</span></div>
+                    <div class="entanglement-visualization" id="entanglement-content" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- Results Widget -->
-            <div class="widget-container results-widget">
+            <div class="widget-container results-widget widget" data-widget="results">
                 <div class="widget-header">
                     <h2><i class="fas fa-chart-bar"></i> Results</h2>
                     <div class="widget-controls">
@@ -319,24 +259,13 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <div class="loading-screen" id="results-loading" style="display: none;">
-                        <div class="loading-spinner"><div class="spinner-ring"></div></div>
-                        <div class="loading-text">Loading Measurement Results...</div>
-                        <div class="loading-progress"><div class="progress-bar" id="results-progress"></div></div>
-                    </div>
-                    <div class="results-visualization" id="results-content">
-                        <canvas id="results-canvas" width="300" height="120"></canvas>
-                        <div class="results-info">
-                            <span class="results-label">Loading...</span>
-                            <span class="results-shots">Shots: <span id="results-shots">-</span></span>
-                            <span class="results-fidelity">Fidelity: <span id="results-fidelity">-</span></span>
-                        </div>
-                    </div>
+                    <div class="loading" id="results-loading"><div class="spinner"></div><span>Loading measurement results...</span></div>
+                    <div class="results-visualization" id="results-content" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- Bloch Sphere Widget -->
-            <div class="widget-container bloch-widget">
+            <div class="widget-container bloch-widget widget" data-widget="bloch-sphere">
                 <div class="widget-header">
                     <h2><i class="fas fa-globe"></i> 3D Bloch Sphere</h2>
                     <div class="widget-controls">
@@ -352,109 +281,17 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <!-- Loading Screen -->
-                    <div class="loading-screen" id="bloch-loading">
-                        <div class="loading-spinner">
-                            <div class="spinner-ring"></div>
-                        </div>
-                        <div class="loading-text">Initializing Bloch Sphere...</div>
-                        <div class="loading-progress">
-                            <div class="progress-bar" id="bloch-progress"></div>
-                        </div>
-                    </div>
-                    <!-- Content -->
-                    <div class="bloch-container" id="bloch-container" style="display: none;">
-                        <!-- 3D Bloch Sphere Container -->
-                        <div id="bloch-3d-container" style="width: 100%; height: 300px; position: relative;"></div>
-                        
-                        <!-- Bloch Sphere Diagram -->
-                        <div class="bloch-diagram-container">
-                            <div class="bloch-sphere-diagram" id="bloch-sphere-diagram">
-                                <svg width="300" height="300" viewBox="0 0 300 300" class="bloch-svg">
-                                    <!-- Sphere outline -->
-                                    <circle cx="150" cy="150" r="120" fill="none" stroke="#4dabf7" stroke-width="2" opacity="0.3"/>
-                                    
-                                    <!-- Coordinate axes -->
-                                    <line x1="30" y1="150" x2="270" y2="150" stroke="#ff6b6b" stroke-width="2" opacity="0.6"/>
-                                    <line x1="150" y1="30" x2="150" y2="270" stroke="#51cf66" stroke-width="2" opacity="0.6"/>
-                                    <line x1="90" y1="90" x2="210" y2="210" stroke="#ffd43b" stroke-width="2" opacity="0.6"/>
-                                    
-                                    <!-- Axis labels -->
-                                    <text x="280" y="155" fill="#ff6b6b" font-size="12" font-weight="bold">X</text>
-                                    <text x="155" y="25" fill="#51cf66" font-size="12" font-weight="bold">Y</text>
-                                    <text x="220" y="220" fill="#ffd43b" font-size="12" font-weight="bold">Z</text>
-                                    
-                                    <!-- North and South poles -->
-                                    <circle cx="150" cy="30" r="4" fill="#4dabf7"/>
-                                    <circle cx="150" cy="270" r="4" fill="#4dabf7"/>
-                                    <text x="155" y="35" fill="#4dabf7" font-size="10">|0⟩</text>
-                                    <text x="155" y="275" fill="#4dabf7" font-size="10">|1⟩</text>
-                                    
-                                    <!-- Quantum state vector -->
-                                    <line x1="150" y1="150" x2="200" y2="100" stroke="#1a237e" stroke-width="3" marker-end="url(#arrowhead)"/>
-                                    <circle cx="200" cy="100" r="3" fill="#1a237e"/>
-                                    
-                                    <!-- Arrow marker definition -->
-                                    <defs>
-                                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#1a237e"/>
-                                        </marker>
-                                    </defs>
-                                    
-                                    <!-- Grid lines for better visualization -->
-                                    <circle cx="150" cy="150" r="60" fill="none" stroke="#4dabf7" stroke-width="1" opacity="0.2"/>
-                                    <circle cx="150" cy="150" r="90" fill="none" stroke="#4dabf7" stroke-width="1" opacity="0.2"/>
-                                </svg>
-                            </div>
-                        </div>
-                        
-                        <!-- Quantum State Info -->
-                        <div class="bloch-info" id="bloch-info">
-                            <div class="quantum-state">
-                                <span class="state-equation">Loading...</span>
-                            </div>
-                            <div class="state-details">
-                                <div class="detail-item">
-                                    <span class="label">θ:</span>
-                                    <span class="value">-</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="label">φ:</span>
-                                    <span class="value">-</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="label">Fidelity:</span>
-                                    <span class="value">-</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Simple Controls -->
-                        <div class="bloch-simple-controls">
-                            <div class="control-group">
-                                <h4>Quantum Gates</h4>
-                                <div class="gate-buttons">
-                                    <button class="gate-btn" data-action="hadamard">H</button>
-                                    <button class="gate-btn" data-action="pauli-x">X</button>
-                                    <button class="gate-btn" data-action="pauli-y">Y</button>
-                                    <button class="gate-btn" data-action="pauli-z">Z</button>
-                                </div>
-                            </div>
-                            <div class="control-group">
-                                <h4>State</h4>
-                                <div class="state-buttons">
-                                    <button class="gate-btn" data-action="reset-state">|0⟩</button>
-                                    <button class="gate-btn" data-action="set-plus">|+⟩</button>
-                                    <button class="gate-btn" data-action="set-minus">|-⟩</button>
-                                </div>
-                            </div>
+                    <div class="loading" id="bloch-loading"><div class="spinner"></div><span>Loading Advanced Bloch Sphere...</span></div>
+                    <div class="bloch-container" id="bloch-content" style="display: none;">
+                        <div class="visualization-container">
+                            <div id="bloch-sphere" style="width: 100%; height: 300px; position: relative;"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Quantum State Widget -->
-            <div class="widget-container quantum-state-widget">
+            <div class="widget-container quantum-state-widget widget" data-widget="quantum-state">
                 <div class="widget-header">
                     <h2><i class="fas fa-atom"></i> Quantum State</h2>
                     <div class="widget-controls">
@@ -470,32 +307,13 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <!-- Loading Screen -->
-                    <div class="loading-screen" id="quantum-state-loading">
-                        <div class="loading-spinner">
-                            <div class="spinner-ring"></div>
-                        </div>
-                        <div class="loading-text">Calculating Quantum State...</div>
-                        <div class="loading-progress">
-                            <div class="progress-bar" id="quantum-state-progress"></div>
-                        </div>
-                    </div>
-                    <!-- Content -->
-                    <div class="quantum-state-display" id="quantum-state-display" style="display: none;">
-                        <div class="state-vector">
-                            <h3>State Vector</h3>
-                            <div class="state-equation">Loading...</div>
-                            <div class="state-coefficients">
-                                <div>α = -</div>
-                                <div>β = -</div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="loading" id="quantum-state-loading"><div class="spinner"></div><span>Loading quantum state...</span></div>
+                    <div class="quantum-state-display" id="quantum-state-content" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- Performance Widget -->
-            <div class="widget-container performance-widget">
+            <div class="widget-container performance-widget widget" data-widget="performance">
                 <div class="widget-header">
                     <h2><i class="fas fa-chart-line"></i> Performance</h2>
                     <div class="widget-controls">
@@ -511,35 +329,8 @@
                     </div>
                 </div>
                 <div class="widget-content">
-                    <!-- Loading Screen -->
-                    <div class="loading-screen" id="performance-loading">
-                        <div class="loading-spinner">
-                            <div class="spinner-ring"></div>
-                        </div>
-                        <div class="loading-text">Analyzing Performance Metrics...</div>
-                        <div class="loading-progress">
-                            <div class="progress-bar" id="performance-progress"></div>
-                        </div>
-                    </div>
-                    <!-- Content -->
-                    <div class="performance-metrics" id="performance-metrics" style="display: none;">
-                        <div class="metric-item">
-                            <span class="metric-label">Success Rate</span>
-                            <span class="metric-value">-</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">Avg Runtime</span>
-                            <span class="metric-value">-</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">Error Rate</span>
-                            <span class="metric-value">-</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">Backends</span>
-                            <span class="metric-value">-</span>
-                        </div>
-                    </div>
+                    <div class="loading" id="performance-loading"><div class="spinner"></div><span>Loading performance data...</span></div>
+                    <div class="performance-metrics" id="performance-content" style="display: none;"></div>
                 </div>
             </div>
         </section>
@@ -558,6 +349,9 @@
         </div>
     </div>
 
+    <!-- Notifications container used by HackathonDashboard -->
+    <div class="notification-container" id="notification-container"></div>
+
     <!-- Modal Overlay -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal-content" id="modal-content">
@@ -574,12 +368,8 @@
     <!-- Math.js for quantum calculations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     
-    <!-- Plotly.js for 3D Bloch sphere -->
+    <!-- Plotly (optional); keep for other widgets -->
     <script src="static/plotly-2.16.1.min.js" defer></script>
-    
-    <!-- Bloch sphere implementation from https://github.com/kherb27/Blochy.git -->
-    <script src="static/bloch_quantum.js"></script>
-    <script src="static/bloch_plot.js"></script>
     
     <!-- Full-Screen Bloch Sphere Overlay -->
     <div id="fullscreen-bloch-overlay" class="fullscreen-bloch-overlay" style="display: none;">
@@ -708,16 +498,12 @@
     <!-- Bloch Sphere JavaScript Files - Load in correct dependency order -->
     <script src="static/plotly-gl3d-2.16.1.min.js"></script>
     <script src="static/enhanced_3d_circuit.js"></script>
-    <script src="static/3d_quantum_circuit.js"></script>
-    <script src="static/bloch_quantum.js"></script>
-    <script src="static/bloch_plot.js"></script>
-    <script src="static/bloch_ui.js"></script>
     
-    <!-- Enhanced dashboard script - loaded last -->
-    <script src="static/enhanced_quantum_script.js"></script>
-    
-    <!-- Enhanced Bloch Sphere Integration -->
-    <script src="static/enhanced_bloch_integration.js"></script>
+    <!-- Sortable for drag & drop (required by HackathonDashboard) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <!-- Use Hackathon dashboard logic for data flow to power widgets -->
+    <script src="/static/hackathon_dashboard.js"></script>
     
     <!-- Enhanced Notification System -->
     <script src="static/enhanced_notifications.js"></script>
@@ -727,6 +513,16 @@
     
     <!-- Backend Comparison System -->
     <script src="static/backend_comparison.js"></script>
+
+    <!-- Load Three.js OrbitControls for better Bloch interaction (optional) -->
+    <script>
+        (function(){
+            var s=document.createElement('script');
+            s.src='/static/bloch_sphere/src/libs/three/jsm/controls/OrbitControls.js';
+            s.onload=function(){console.log('OrbitControls loaded');};
+            document.head.appendChild(s);
+        })();
+    </script>
     
     <script>
         // Add keyboard shortcut for fullscreen toggle (ESC key)
@@ -742,26 +538,17 @@
     
     <!-- Initialize Enhanced Dashboard and Loading System -->
     <script>
-        // Initialize enhanced dashboard instance
+        // Initialize dashboard (reuse HackathonDashboard logic for data + advanced theme)
         let dashboard;
-        
-        // Wait for all scripts to load
         window.addEventListener('load', function() {
-            console.log('🚀 Window loaded, initializing enhanced dashboard...');
-            
-            // Check if EnhancedQuantumDashboard class is available
-            if (typeof EnhancedQuantumDashboard === 'undefined') {
-                console.error('❌ EnhancedQuantumDashboard class not available');
-                return;
-            }
-            
-            // Initialize the enhanced dashboard
-            try {
-                dashboard = new EnhancedQuantumDashboard();
-                console.log('✅ Enhanced Dashboard initialized successfully');
-            } catch (error) {
-                console.error('❌ Error initializing enhanced dashboard:', error);
-                return;
+            console.log('🚀 Window loaded, initializing advanced dashboard powered by Hackathon logic...');
+            if (typeof HackathonDashboard !== 'undefined') {
+                try {
+                    dashboard = new HackathonDashboard();
+                    console.log('✅ HackathonDashboard initialized for Advanced layout');
+                } catch (e) {
+                    console.error('❌ Failed to init HackathonDashboard:', e);
+                }
             }
             
             // Initialize Enhanced 3D Quantum Circuit
@@ -808,9 +595,6 @@
     
     <!-- Theme Switcher -->
     <script src="/static/theme_switcher.js"></script>
-    
-    <!-- Main Dashboard Script -->
-    <script src="/static/hackathon_dashboard.js"></script>
     
 </body>
 </html>
