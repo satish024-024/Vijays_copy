@@ -114,9 +114,13 @@ class BackendComparisonSystem {
                                     <th>Status</th>
                                     <th>Qubits</th>
                                     <th>Queue</th>
-                                    <th>Predicted Wait</th>
-                                    <th>Throughput</th>
-                                    <th>Score</th>
+                                    <th>Execution Time</th>
+                                    <th>Success Rate</th>
+                                    <th>Fidelity</th>
+                                    <th>Calibration</th>
+                                    <th>Gate Error</th>
+                                    <th>Coherence</th>
+                                    <th>Usage</th>
                                     <th>Recommendation</th>
                                 </tr>
                             </thead>
@@ -215,29 +219,91 @@ class BackendComparisonSystem {
     }
 
     async fetchBackendData() {
-        // Fetch real data from backend APIs
+        console.log('🔄 Backend Comparison: Fetching comprehensive data from all enhanced IBM Quantum APIs...');
+
+        // Fetch real data from all enhanced backend APIs
         const algo = document.getElementById('algo-option')?.value || 'auto';
         const complexity = document.getElementById('complexity-option')?.value || 'medium';
-        const [backendsRes, predsRes, recsRes] = await Promise.all([
+
+        // Fetch all enhanced APIs concurrently
+        const [
+            backendsRes,
+            performanceRes,
+            realtimeRes,
+            calibrationRes,
+            historicalRes,
+            predsRes,
+            recsRes
+        ] = await Promise.allSettled([
             fetch('/api/backends'),
+            fetch('/api/performance_metrics'),
+            fetch('/api/realtime_monitoring'),
+            fetch('/api/calibration_data'),
+            fetch('/api/historical_data'),
             fetch(`/api/predictions?job_complexity=${encodeURIComponent(complexity)}`),
             fetch(`/api/recommendations?algorithm=${encodeURIComponent(algo)}&top_k=999&job_complexity=${encodeURIComponent(complexity)}`)
         ]);
-        if (!backendsRes.ok) throw new Error(`Backends HTTP ${backendsRes.status}`);
-        const backendsJson = await backendsRes.json();
-        const predsJson = predsRes.ok ? await predsRes.json() : { predictions: [] };
-        const recsJson = recsRes.ok ? await recsRes.json() : { recommendations: [] };
 
+        // Process responses with error handling
+        const backendsJson = backendsRes.status === 'fulfilled' && backendsRes.value.ok
+            ? await backendsRes.value.json()
+            : [];
+
+        const performanceJson = performanceRes.status === 'fulfilled' && performanceRes.value.ok
+            ? await performanceRes.value.json()
+            : {};
+
+        const realtimeJson = realtimeRes.status === 'fulfilled' && realtimeRes.value.ok
+            ? await realtimeRes.value.json()
+            : {};
+
+        const calibrationJson = calibrationRes.status === 'fulfilled' && calibrationRes.value.ok
+            ? await calibrationRes.value.json()
+            : {};
+
+        const historicalJson = historicalRes.status === 'fulfilled' && historicalRes.value.ok
+            ? await historicalRes.value.json()
+            : {};
+
+        const predsJson = predsRes.status === 'fulfilled' && predsRes.value.ok
+            ? await predsRes.value.json()
+            : { predictions: [] };
+
+        const recsJson = recsRes.status === 'fulfilled' && recsRes.value.ok
+            ? await recsRes.value.json()
+            : { recommendations: [] };
+
+        // Process enhanced data
         const predictions = Array.isArray(predsJson.predictions) ? predsJson.predictions : [];
         const recommendations = Array.isArray(recsJson.recommendations) ? recsJson.recommendations : [];
 
         const predByName = new Map(predictions.map(p => [p.name, p]));
         const rankByName = new Map(recommendations.map((r, i) => [r.name, { score: r.score, rank: i + 1, wait: r.predicted_wait_seconds, throughput: r.throughput_jobs_per_hour, explanation: r.explanation, algorithm: r.algorithm }]));
 
+        // Get backend-specific performance data
+        const backendPerformance = performanceJson.backend_performance || {};
+        const backendCalibrations = calibrationJson.backend_calibrations || {};
+        const backendUsage = historicalJson.backend_usage || {};
+
         const items = (Array.isArray(backendsJson) ? backendsJson : []).map(b => {
             const name = b.name || 'unknown';
             const pred = predByName.get(name);
             const rinfo = rankByName.get(name) || {};
+            const perf = backendPerformance[name] || {};
+            const calib = backendCalibrations[name] || {};
+            const usage = backendUsage[name] || 0;
+
+            // Calculate enhanced metrics
+            const gateErrors = b.gate_errors || {};
+            const avgGateError = Object.keys(gateErrors).length > 0
+                ? Object.values(gateErrors).reduce((sum, err) => sum + err, 0) / Object.keys(gateErrors).length
+                : 0;
+
+            const t1Times = b.t1_times || {};
+            const avgT1 = Object.keys(t1Times).length > 0
+                ? Object.values(t1Times).reduce((sum, t1) => sum + t1, 0) / Object.keys(t1Times).length
+                : 0;
+
             return {
                 name,
                 status: b.operational ? 'online' : 'offline',
@@ -249,10 +315,24 @@ class BackendComparisonSystem {
                 recommendationRank: typeof rinfo.rank === 'number' ? rinfo.rank : null,
                 explanation: rinfo.explanation || null,
                 algorithm: rinfo.algorithm || (document.getElementById('algo-option')?.value || 'auto'),
+
+                // Enhanced metrics from new APIs
+                avgExecutionTime: perf.average_execution_time || 0,
+                successRate: perf.success_rate ? Math.round(perf.success_rate * 100) : 0,
+                avgFidelity: perf.average_fidelity ? Math.round(perf.average_fidelity * 100) : 0,
+                calibrationStatus: calib.status || 'unknown',
+                calibrationQuality: calib.calibration_quality ? Math.round(calib.calibration_quality * 100) : 0,
+                usageCount: usage,
+                gateErrorRate: avgGateError,
+                coherenceTime: avgT1,
+                couplingMapSize: (b.coupling_map || []).length,
+                basisGatesCount: (b.basis_gates || []).length,
+
                 lastUpdate: Date.now()
             };
         });
 
+        console.log(`✅ Backend Comparison: Loaded comprehensive data for ${items.length} backends`);
         return items;
     }
 
@@ -331,24 +411,40 @@ class BackendComparisonSystem {
                         <div class="queue-trend">${this.getQueueTrend(backend.name)}</div>
                     </div>
                 </td>
-                <td class="wait-time-cell">
-                    <span class="wait-time">${avgWaitTime}</span>
+                <td class="execution-time-cell">
+                    <span class="execution-time">${backend.avgExecutionTime ? backend.avgExecutionTime.toFixed(1) + 's' : '—'}</span>
                 </td>
                 <td class="success-rate-cell">
                     <div class="success-rate">
-                        <span class="rate-value">${this.formatThroughput(backend.throughput)}</span>
+                        <span class="rate-value">${backend.successRate || 0}%</span>
                         <div class="rate-bar">
-                            <div class="rate-fill" style="width: ${Math.min(100, backend.throughput || 0)}%"></div>
+                            <div class="rate-fill" style="width: ${backend.successRate || 0}%"></div>
                         </div>
                     </div>
                 </td>
-                <td class="performance-cell">
-                    <div class="performance-score">
-                        <span class="score-value">${backend.performanceScore || '—'}</span>
-                        <div class="score-bar">
-                            <div class="score-fill" style="width: ${backend.performanceScore || 0}%"></div>
+                <td class="fidelity-cell">
+                    <div class="fidelity-info">
+                        <span class="fidelity-value">${backend.avgFidelity || 0}%</span>
+                        <div class="fidelity-bar">
+                            <div class="fidelity-fill" style="width: ${backend.avgFidelity || 0}%"></div>
                         </div>
                     </div>
+                </td>
+                <td class="calibration-cell">
+                    <div class="calibration-info">
+                        <span class="calibration-status ${backend.calibrationStatus}">${backend.calibrationStatus}</span>
+                        <span class="calibration-quality">${backend.calibrationQuality || 0}%</span>
+                    </div>
+                </td>
+                <td class="gate-error-cell">
+                    <span class="gate-error">${backend.gateErrorRate ? (backend.gateErrorRate * 100).toFixed(3) + '%' : '—'}</span>
+                </td>
+                <td class="coherence-cell">
+                    <span class="coherence-time">${backend.coherenceTime ? (backend.coherenceTime / 1000).toFixed(1) + 'μs' : '—'}</span>
+                </td>
+                <td class="usage-cell">
+                    <span class="usage-count">${backend.usageCount || 0}</span>
+                    <span class="usage-label">jobs</span>
                 </td>
                 <td class="recommendation-cell">
                     <span class="recommendation ${recommendation.type}" title="${backend.explanation || ''}">

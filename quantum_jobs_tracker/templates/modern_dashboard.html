@@ -21,7 +21,10 @@
     
     <!-- Google Gemini AI -->
     <script src="https://unpkg.com/@google/generative-ai@0.1.3/dist/index.js"></script>
-    
+
+    <!-- Offline Manager for offline functionality -->
+    <script src="{{ url_for('static', filename='offline_manager.js') }}"></script>
+
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -102,18 +105,25 @@
             top: 0;
             z-index: 100;
             box-shadow: var(--shadow-deep);
+            min-height: 90px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .header-left {
             display: flex;
             align-items: center;
             gap: 1rem;
+            flex-shrink: 1;
+            min-width: 0;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 1rem;
+            flex-shrink: 1;
+            min-width: 0;
         }
 
         .logo-icon {
@@ -128,11 +138,17 @@
             font-size: 1.5rem;
             box-shadow: var(--shadow-glow);
             animation: pulse 3s ease-in-out infinite;
+            flex-shrink: 0;
         }
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
+        }
+
+        .logo-text {
+            min-width: 0;
+            flex-shrink: 1;
         }
 
         .logo-text h1 {
@@ -144,6 +160,9 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .subtitle {
@@ -151,6 +170,9 @@
             color: var(--text-secondary);
             font-weight: 500;
             margin-top: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .header-center {
@@ -158,6 +180,9 @@
             flex-direction: column;
             align-items: center;
             gap: 0.75rem;
+            flex-shrink: 1;
+            min-width: 0;
+            justify-content: center;
         }
 
         .modern-badge {
@@ -194,6 +219,78 @@
         .connection-status i {
             color: #56ab2f;
             animation: pulse 2s infinite;
+        }
+
+        .connection-status.offline i {
+            color: #dc3545;
+        }
+
+        .connection-status.offline span {
+            color: #dc3545;
+        }
+
+        .connection-status.syncing i {
+            color: #ffc107;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .offline-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-deep);
+            z-index: 1000;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-out;
+            display: none;
+        }
+
+        .offline-notification.show {
+            display: block;
+        }
+
+        .offline-notification.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .offline-notification.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .offline-notification.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .offline-notification .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         .header-right {
@@ -755,6 +852,215 @@
                 transform: translateY(0);
             }
         }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .header {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .logo-text h1 {
+                font-size: 1.8rem;
+            }
+
+            .modern-badge {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .connection-status {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                padding: 1rem 1.25rem;
+            }
+
+            .logo-text h1 {
+                font-size: 1.6rem;
+            }
+
+            .header-center {
+                gap: 0.5rem;
+            }
+
+            .header-right {
+                gap: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+                min-height: auto;
+            }
+
+            .header-left {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header-center {
+                order: -1;
+                width: 100%;
+                justify-content: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: center;
+                gap: 0.25rem;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                gap: 0.5rem;
+            }
+
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .logo-text h1 {
+                font-size: 1.4rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .modern-badge {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+                flex-shrink: 1;
+                min-width: 120px;
+            }
+
+            .connection-status {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                flex-shrink: 1;
+                min-width: 120px;
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+                flex-shrink: 1;
+                min-width: 80px;
+            }
+
+            .btn span {
+                display: none;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .widget-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.5rem 0.75rem;
+                gap: 0.5rem;
+            }
+
+            .header-left,
+            .header-center,
+            .header-right {
+                gap: 0.25rem;
+            }
+
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+
+            .logo-text h1 {
+                font-size: 1.2rem;
+            }
+
+            .subtitle {
+                font-size: 0.8rem;
+            }
+
+            .modern-badge {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+
+            .connection-status {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+                min-width: 100px;
+            }
+
+            .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+                min-width: 70px;
+            }
+
+            .main-content {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .header {
+                padding: 0.5rem;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+
+            .logo-text h1 {
+                font-size: 1rem;
+            }
+
+            .subtitle {
+                font-size: 0.7rem;
+            }
+
+            .modern-badge {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.7rem;
+            }
+
+            .connection-status {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.7rem;
+                min-width: 80px;
+            }
+
+            .btn {
+                padding: 0.35rem 0.7rem;
+                font-size: 0.7rem;
+                min-width: 60px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1265,5 +1571,123 @@
     
     <!-- Backend Comparison (Compare button + modal) -->
     <script src="static/backend_comparison.js"></script>
+
+    <!-- Offline Status Management -->
+    <script>
+        // Offline status management for modern dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            const connectionStatus = document.getElementById('connection-status');
+            const statusIcon = connectionStatus.querySelector('i');
+            const statusText = connectionStatus.querySelector('span');
+
+            // Wait for offline manager to initialize
+            let offlineManager;
+            const checkOfflineManager = setInterval(() => {
+                if (window.offlineManager) {
+                    offlineManager = window.offlineManager;
+                    clearInterval(checkOfflineManager);
+                    initializeOfflineStatus();
+                }
+            }, 100);
+
+            function initializeOfflineStatus() {
+                updateConnectionStatus();
+                setupOfflineNotifications();
+
+                // Update status periodically
+                setInterval(updateConnectionStatus, 30000); // Every 30 seconds
+            }
+
+            function updateConnectionStatus() {
+                if (!offlineManager) return;
+
+                const isOnline = offlineManager.isOnlineStatus();
+                const statusDiv = document.getElementById('connection-status');
+
+                if (isOnline) {
+                    statusDiv.className = 'connection-status';
+                    statusIcon.className = 'fas fa-circle';
+                    statusText.textContent = 'Connected to IBM Quantum';
+                } else {
+                    statusDiv.className = 'connection-status offline';
+                    statusIcon.className = 'fas fa-circle';
+                    statusText.textContent = 'Offline Mode - Using Cached Data';
+                }
+            }
+
+            function setupOfflineNotifications() {
+                // Listen for offline manager events (if available)
+                if (offlineManager) {
+                    // Check data freshness on load
+                    checkDataFreshness();
+                }
+            }
+
+            async function checkDataFreshness() {
+                try {
+                    const response = await fetch('/api/sync_status');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const isFresh15 = data.is_data_fresh_15min;
+                        const isFresh30 = data.is_data_fresh_30min;
+
+                        if (!isFresh15 && !isFresh30) {
+                            showOfflineNotification(
+                                'Data is stale',
+                                'Your cached data is more than 30 minutes old. Connect to internet for fresh data.',
+                                'warning'
+                            );
+                        } else if (!isFresh15) {
+                            showOfflineNotification(
+                                'Data is getting old',
+                                'Your cached data is more than 15 minutes old.',
+                                'info'
+                            );
+                        }
+                    }
+                } catch (error) {
+                    console.log('Could not check data freshness:', error);
+                }
+            }
+
+            function showOfflineNotification(title, message, type = 'info') {
+                // Remove existing notifications
+                const existing = document.querySelectorAll('.offline-notification');
+                existing.forEach(el => el.remove());
+
+                // Create new notification
+                const notification = document.createElement('div');
+                notification.className = `offline-notification ${type} show`;
+
+                notification.innerHTML = `
+                    <button class="close-btn" onclick="this.parentElement.remove()">&times;</button>
+                    <h4 style="margin: 0 0 8px 0; color: var(--text-primary);">${title}</h4>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">${message}</p>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 10000);
+            }
+
+            // Add offline status to header-right section
+            const headerRight = document.querySelector('.header-right');
+            if (headerRight) {
+                const offlineBtn = document.createElement('button');
+                offlineBtn.className = 'btn btn-secondary';
+                offlineBtn.innerHTML = '<i class="fas fa-wifi"></i> <span>Offline Status</span>';
+                offlineBtn.onclick = () => {
+                    window.open('/offline_status', '_blank');
+                };
+                headerRight.appendChild(offlineBtn);
+            }
+        });
+    </script>
 </body>
 </html>

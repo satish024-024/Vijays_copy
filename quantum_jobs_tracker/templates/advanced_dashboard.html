@@ -12,6 +12,198 @@
     <link rel="stylesheet" href="static/enhanced_quantum_style.css">
     <link rel="stylesheet" href="static/3d_circuit_style.css">
     <link rel="stylesheet" href="/static/bloch_sphere/main.css">
+    
+    <!-- Database Integration Styles -->
+    <style>
+        .timeframe-select {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        
+        .historical-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .chart-container canvas {
+            max-height: 200px;
+        }
+        
+        .historical-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .offline-banner {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .offline-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .offline-banner i {
+            font-size: 18px;
+        }
+        
+        .retry-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .retry-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .connection-status.offline {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .connection-status.offline .status-indicator {
+            color: #fff;
+        }
+
+        .offline-indicator {
+            color: #f39c12;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .offline-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-out;
+            display: none;
+            color: white;
+        }
+
+        .offline-notification.show {
+            display: block;
+        }
+
+        .offline-notification.success {
+            border-left: 4px solid #27ae60;
+        }
+
+        .offline-notification.warning {
+            border-left: 4px solid #f39c12;
+        }
+
+        .offline-notification.error {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .offline-notification .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .backend-item.offline {
+            border-left: 4px solid #f39c12;
+        }
+        
+        .jobs-table.offline {
+            border: 1px solid #f39c12;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .historical-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .historical-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body class="light-theme">
     <!-- Real Quantum Data Status Indicator -->
@@ -284,7 +476,8 @@
                     <div class="loading" id="bloch-loading"><div class="spinner"></div><span>Loading Advanced Bloch Sphere...</span></div>
                     <div class="bloch-container" id="bloch-content" style="display: none;">
                         <div class="visualization-container">
-                            <div id="bloch-sphere" style="width: 100%; height: 300px; position: relative;"></div>
+                            <!-- Updated ID for compatibility with bloch_ui.js -->
+                            <div id="bloch-3d-container" style="width: 100%; height: 300px; position: relative;"></div>
                         </div>
                     </div>
                 </div>
@@ -331,6 +524,52 @@
                 <div class="widget-content">
                     <div class="loading" id="performance-loading"><div class="spinner"></div><span>Loading performance data...</span></div>
                     <div class="performance-metrics" id="performance-content" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Historical Data Widget -->
+            <div class="widget-container historical-widget widget" data-widget="historical">
+                <div class="widget-header">
+                    <h2><i class="fas fa-history"></i> Historical Data</h2>
+                    <div class="widget-controls">
+                        <select id="historical-timeframe" class="timeframe-select">
+                            <option value="1">Last Hour</option>
+                            <option value="6">Last 6 Hours</option>
+                            <option value="24" selected>Last 24 Hours</option>
+                            <option value="168">Last Week</option>
+                        </select>
+                        <button class="widget-btn" data-action="refresh-historical">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="widget-btn" data-action="export-historical">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <div class="loading" id="historical-loading"><div class="spinner"></div><span>Loading historical data...</span></div>
+                    <div class="historical-charts" id="historical-content" style="display: none;">
+                        <div class="chart-container">
+                            <canvas id="backends-history-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="jobs-history-chart"></canvas>
+                        </div>
+                        <div class="historical-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Data Points:</span>
+                                <span class="stat-value" id="data-points-count">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Last Update:</span>
+                                <span class="stat-value" id="last-update-time">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Database Size:</span>
+                                <span class="stat-value" id="database-size">-</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -502,8 +741,14 @@
     <!-- Sortable for drag & drop (required by HackathonDashboard) -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
+    <!-- Offline Manager for offline functionality -->
+    <script src="{{ url_for('static', filename='offline_manager.js') }}"></script>
+
     <!-- Use Hackathon dashboard logic for data flow to power widgets -->
     <script src="/static/hackathon_dashboard.js"></script>
+
+    <!-- Advanced Dashboard Script -->
+    <script src="/static/advanced_script.js"></script>
     
     <!-- Enhanced Notification System -->
     <script src="static/enhanced_notifications.js"></script>
@@ -513,12 +758,15 @@
     
     <!-- Backend Comparison System -->
     <script src="static/backend_comparison.js"></script>
+    
+    <!-- Database Integration for Offline Mode -->
+    <script src="static/database_integration.js"></script>
 
-    <!-- Load Three.js OrbitControls for better Bloch interaction (optional) -->
+    <!-- Load OrbitControls from CDN (compatible with global THREE) -->
     <script>
         (function(){
             var s=document.createElement('script');
-            s.src='/static/bloch_sphere/src/libs/three/jsm/controls/OrbitControls.js';
+            s.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
             s.onload=function(){console.log('OrbitControls loaded');};
             document.head.appendChild(s);
         })();
@@ -538,19 +786,10 @@
     
     <!-- Initialize Enhanced Dashboard and Loading System -->
     <script>
-        // Initialize dashboard (reuse HackathonDashboard logic for data + advanced theme)
-        let dashboard;
+        // Initialize dashboard - QuantumDashboard will handle HackathonDashboard integration
         window.addEventListener('load', function() {
-            console.log('🚀 Window loaded, initializing advanced dashboard powered by Hackathon logic...');
-            if (typeof HackathonDashboard !== 'undefined') {
-                try {
-                    dashboard = new HackathonDashboard();
-                    console.log('✅ HackathonDashboard initialized for Advanced layout');
-                } catch (e) {
-                    console.error('❌ Failed to init HackathonDashboard:', e);
-                }
-            }
-            
+            console.log('🚀 Window loaded, Advanced Dashboard initialization handled by QuantumDashboard...');
+
             // Initialize Enhanced 3D Quantum Circuit
             if (typeof initEnhanced3DQuantumCircuit === 'function') {
                 console.log('🚀 Initializing Enhanced 3D Quantum Circuit...');
@@ -569,7 +808,7 @@
             } else {
                 console.warn('⚠️ No 3D Quantum Circuit initialization function available');
             }
-            
+
             // Initialize Bloch sphere
             if (typeof init_bloch_sphere === 'function') {
                 console.log('🚀 Initializing Bloch sphere...');
@@ -581,7 +820,7 @@
             } else {
                 console.warn('⚠️ init_bloch_sphere function not available');
             }
-            
+
             // Force Bloch sphere diagram rendering as fallback
             if (typeof createSimpleBlochSphere === 'function') {
                 try {
@@ -590,9 +829,306 @@
                     console.error('❌ Error creating fallback Bloch sphere:', error);
                 }
             }
+            
+            // Initialize Historical Data Widget
+            initializeHistoricalWidget();
+        });
+        
+        // Historical Data Widget Functions
+        function initializeHistoricalWidget() {
+            const timeframeSelect = document.getElementById('historical-timeframe');
+            const refreshBtn = document.querySelector('[data-action="refresh-historical"]');
+            const exportBtn = document.querySelector('[data-action="export-historical"]');
+            
+            if (timeframeSelect) {
+                timeframeSelect.addEventListener('change', loadHistoricalData);
+            }
+            
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', loadHistoricalData);
+            }
+            
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportHistoricalData);
+            }
+            
+            // Load initial data
+            loadHistoricalData();
+        }
+        
+        async function loadHistoricalData() {
+            const timeframe = document.getElementById('historical-timeframe')?.value || 24;
+            const loading = document.getElementById('historical-loading');
+            const content = document.getElementById('historical-content');
+            
+            if (loading) loading.style.display = 'block';
+            if (content) content.style.display = 'none';
+            
+            try {
+                // Load historical data
+                const response = await fetch(`/api/historical_data?hours=${timeframe}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayHistoricalData(data.data);
+                    updateHistoricalStats(data.data);
+                } else {
+                    console.error('Failed to load historical data:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading historical data:', error);
+            } finally {
+                if (loading) loading.style.display = 'none';
+                if (content) content.style.display = 'block';
+            }
+        }
+        
+        function displayHistoricalData(data) {
+            // Create backends history chart
+            createHistoryChart('backends-history-chart', 'active_backends', data);
+            
+            // Create jobs history chart
+            createHistoryChart('jobs-history-chart', 'total_jobs', data);
+        }
+        
+        function createHistoryChart(canvasId, metricName, data) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            // Clear existing chart
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+            
+            // Get metric data
+            const metricData = data.metrics?.filter(m => m.metric_name === metricName) || [];
+            
+            if (metricData.length === 0) {
+                canvas.parentElement.innerHTML = `<div class="no-data">No ${metricName} data available</div>`;
+                return;
+            }
+            
+            // Create chart
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: metricData.map(d => new Date(d.timestamp).toLocaleTimeString()),
+                    datasets: [{
+                        label: metricName.replace('_', ' ').toUpperCase(),
+                        data: metricData.map(d => d.metric_value),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateHistoricalStats(data) {
+            const dataPointsCount = document.getElementById('data-points-count');
+            const lastUpdateTime = document.getElementById('last-update-time');
+            const databaseSize = document.getElementById('database-size');
+            
+            if (dataPointsCount) {
+                const totalPoints = (data.metrics?.length || 0) + (data.backends?.length || 0) + (data.jobs?.length || 0);
+                dataPointsCount.textContent = totalPoints.toLocaleString();
+            }
+            
+            if (lastUpdateTime) {
+                const lastUpdate = data.last_update || new Date().toISOString();
+                lastUpdateTime.textContent = new Date(lastUpdate).toLocaleString();
+            }
+            
+            if (databaseSize) {
+                // Load database stats
+                fetch('/api/database_stats')
+                    .then(response => response.json())
+                    .then(stats => {
+                        if (stats.success) {
+                            const sizeMB = (stats.stats.database_size_bytes / 1024 / 1024).toFixed(2);
+                            databaseSize.textContent = `${sizeMB} MB`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading database stats:', error);
+                        databaseSize.textContent = 'Unknown';
+                    });
+            }
+        }
+        
+        function exportHistoricalData() {
+            const timeframe = document.getElementById('historical-timeframe')?.value || 24;
+            
+            fetch(`/api/historical_data?hours=${timeframe}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `quantum_historical_data_${timeframe}h.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error exporting historical data:', error);
+                });
+        }
+    </script>
+
+    <!-- Offline Status Management -->
+    <script>
+        // Offline status management for advanced dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            const connectionStatus = document.querySelector('.connection-status') || createConnectionStatus();
+            const statusIcon = connectionStatus.querySelector('i');
+            const statusText = connectionStatus.querySelector('span');
+
+            // Wait for offline manager to initialize
+            let offlineManager;
+            const checkOfflineManager = setInterval(() => {
+                if (window.offlineManager) {
+                    offlineManager = window.offlineManager;
+                    clearInterval(checkOfflineManager);
+                    initializeOfflineStatus();
+                }
+            }, 100);
+
+            function createConnectionStatus() {
+                // Create connection status if it doesn't exist
+                const header = document.querySelector('.header-center') || document.querySelector('header');
+                if (!header) return null;
+
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'connection-status';
+                statusDiv.innerHTML = '<i class="fas fa-circle"></i> <span>Checking connection...</span>';
+                header.appendChild(statusDiv);
+                return statusDiv;
+            }
+
+            function initializeOfflineStatus() {
+                updateConnectionStatus();
+                setupOfflineNotifications();
+
+                // Update status periodically
+                setInterval(updateConnectionStatus, 30000);
+            }
+
+            function updateConnectionStatus() {
+                if (!offlineManager || !connectionStatus) return;
+
+                const isOnline = offlineManager.isOnlineStatus();
+
+                if (isOnline) {
+                    connectionStatus.className = 'connection-status';
+                    if (statusIcon) statusIcon.className = 'fas fa-circle';
+                    if (statusText) statusText.textContent = 'Connected to IBM Quantum';
+                } else {
+                    connectionStatus.className = 'connection-status offline';
+                    if (statusIcon) statusIcon.className = 'fas fa-circle';
+                    if (statusText) statusText.textContent = 'Offline Mode - Using Cached Data';
+                }
+            }
+
+            function setupOfflineNotifications() {
+                if (offlineManager) {
+                    checkDataFreshness();
+                }
+            }
+
+            async function checkDataFreshness() {
+                try {
+                    const response = await fetch('/api/sync_status');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const isFresh15 = data.is_data_fresh_15min;
+                        const isFresh30 = data.is_data_fresh_30min;
+
+                        if (!isFresh15 && !isFresh30) {
+                            showOfflineNotification(
+                                'Data is stale',
+                                'Your cached data is more than 30 minutes old. Connect to internet for fresh data.',
+                                'warning'
+                            );
+                        } else if (!isFresh15) {
+                            showOfflineNotification(
+                                'Data is getting old',
+                                'Your cached data is more than 15 minutes old.',
+                                'info'
+                            );
+                        }
+                    }
+                } catch (error) {
+                    console.log('Could not check data freshness:', error);
+                }
+            }
+
+            function showOfflineNotification(title, message, type = 'info') {
+                const existing = document.querySelectorAll('.offline-notification');
+                existing.forEach(el => el.remove());
+
+                const notification = document.createElement('div');
+                notification.className = `offline-notification ${type} show`;
+                notification.innerHTML = `
+                    <button class="close-btn" onclick="this.parentElement.remove()">&times;</button>
+                    <h4 style="margin: 0 0 8px 0; color: var(--text-primary);">${title}</h4>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">${message}</p>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 10000);
+            }
+
+            // Add offline status button to header
+            const headerRight = document.querySelector('.header-right');
+            if (headerRight) {
+                const offlineBtn = document.createElement('button');
+                offlineBtn.className = 'btn btn-secondary';
+                offlineBtn.innerHTML = '<i class="fas fa-wifi"></i> <span>Offline Status</span>';
+                offlineBtn.onclick = () => {
+                    window.open('/offline_status', '_blank');
+                };
+                headerRight.appendChild(offlineBtn);
+            }
         });
     </script>
-    
+
     <!-- Theme Switcher -->
     <script src="/static/theme_switcher.js"></script>
     

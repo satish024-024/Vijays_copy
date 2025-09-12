@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBM Quantum Authentication - Choose Your Method</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 300% 300%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 36px;
+        }
+
+        .header h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .auth-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auth-method {
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .auth-method:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .auth-method.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .method-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .method-icon.api-token {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .method-icon.oauth {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .method-icon.ibm-cloud {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+        }
+
+        .method-content h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .method-content p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        .security-badge i {
+            font-size: 10px;
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .continue-btn.active {
+            display: block;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .method-details {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e1e5e9;
+            display: none;
+        }
+
+        .method-details.active {
+            display: block;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .feature-list li i {
+            color: #10b981;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .auth-container {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .auth-method {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h1>IBM watsonx.ai</h1>
+            <p>Enterprise AI Authentication</p>
+        </div>
+
+        <div class="auth-methods">
+            <!-- IBM Cloud Authentication Policy -->
+            <div class="auth-method active" data-method="watsonx">
+                <div class="method-header">
+                    <div class="method-icon ibm-cloud">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="method-content">
+                        <h3>IBM watsonx.ai</h3>
+                        <p>Enterprise AI authentication with IBM Cloud Policy</p>
+                        <div class="security-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            DataPower Gateway
+                        </div>
+                    </div>
+                </div>
+                <div class="method-details active">
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> IBM Cloud Authentication Policy v1.0.0</li>
+                        <li><i class="fas fa-check"></i> DataPower API Gateway compatible</li>
+                        <li><i class="fas fa-check"></i> Automatic Bearer token management</li>
+                        <li><i class="fas fa-check"></i> 60-minute enterprise token caching</li>
+                        <li><i class="fas fa-check"></i> watsonx.ai ready authentication</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <button class="continue-btn" id="continueBtn">
+            <i class="fas fa-arrow-right"></i>
+            Continue
+        </button>
+
+        <div class="back-link">
+            <a href="/">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const continueBtn = document.getElementById('continueBtn');
+
+            // Auto-select the watsonx method since it's the only option
+            continueBtn.classList.add('active');
+
+            continueBtn.addEventListener('click', function() {
+                // Redirect to watsonx authentication form
+                window.location.href = '/watsonx/auth-form';
+            });
+
+            // Add keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    continueBtn.click();
+                }
+            });
+
+            // Auto-redirect after 2 seconds for better UX
+            setTimeout(function() {
+                continueBtn.click();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

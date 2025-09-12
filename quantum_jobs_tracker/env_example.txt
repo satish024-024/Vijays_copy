@@ -8,6 +8,19 @@ IBM_QUANTUM_TOKEN=your_actual_token_here
 # Your IBM Quantum CRN (Cloud Resource Name)
 IBM_QUANTUM_CRN=your_actual_crn_here
 
+# IBM watsonx.ai Configuration
+# Your watsonx.ai API key from IBM Cloud (Manage → Access (IAM) → API keys)
+WATSONX_API_KEY=your_watsonx_api_key_here
+
+# Your watsonx.ai project ID (found in watsonx.ai project settings)
+WATSONX_PROJECT_ID=your_project_id_here
+
+# watsonx.ai service URL (usually: https://us-south.ml.cloud.ibm.com)
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+
+# watsonx.ai Runtime service CRN (from your newly created service)
+WATSONX_CRN=crn:v1:bluemix:public:pm-20:eu-gb:a/22643a9008454fa2af1809e248bb4f72:8cef4db4-7f5a-41c8-9cc4-5dcc04fcb806::
+
 # Application Settings
 DEBUG=False
 PORT=5000

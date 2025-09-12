@@ -3,286 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IBM Quantum API Token - Quantum Jobs Tracker</title>
+    <title>Quantum Research Platform - Secure Access</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
+
+        .auth-container {
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 50px;
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1e40af, #3b82f6, #06b6d4, #10b981);
+            background-size: 300% 300%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
         .logo {
             width: 80px;
             height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border-radius: 50%;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto 25px;
             color: white;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
             font-size: 28px;
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+            position: relative;
         }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
+
+        .logo::before {
+            content: '⚛️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+        }
+
+        .header h1 {
+            color: #0f172a;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #64748b;
             font-size: 16px;
+            font-weight: 400;
             line-height: 1.5;
         }
-        
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            color: #0369a1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .security-badge i {
+            font-size: 12px;
+        }
+
         .form-group {
             margin-bottom: 25px;
-            text-align: left;
         }
-        
-        label {
+
+        .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #333;
+            color: #0f172a;
+            font-size: 15px;
             font-weight: 600;
-            font-size: 14px;
+            margin-bottom: 8px;
         }
-        
-        input[type="text"] {
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 18px;
+            z-index: 2;
+        }
+
+        .form-group input {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            padding: 16px 16px 16px 50px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
             font-size: 16px;
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background: #fafafa;
         }
-        
-        input[type="text"]:focus {
+
+        .form-group input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        
-        .submit-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);
         }
-        
-        .submit-btn:hover {
+
+        .auth-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
         }
-        
-        .submit-btn:disabled {
+
+        .auth-btn:active {
+            transform: translateY(0);
+        }
+
+        .auth-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
-        
-        .info-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-            text-align: left;
-        }
-        
-        .info-box h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 16px;
-        }
-        
-        .info-box p {
-            margin: 0;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .error {
-            color: #dc3545;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 15px 0;
-            display: none;
-        }
-        
-        .success {
-            color: #155724;
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 15px 0;
-            display: none;
-        }
-        
+
         .loading {
             display: none;
-            margin: 10px 0;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 20px;
         }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+
+        .loading.show {
+            display: block;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-message.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-link a:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .features {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .features h3 {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .features li i {
+            color: #10b981;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .auth-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .logo {
+                width: 70px;
+                height: 70px;
+                font-size: 30px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">⚛</div>
-        <h1>Quantum Jobs Tracker</h1>
-        <p class="subtitle">Enter your IBM Quantum API token to access real quantum computing resources</p>
-        
+    <div class="auth-container">
+        <div class="header">
+            <div class="logo">
+                <!-- Quantum logo -->
+            </div>
+            <h1>Quantum Research Platform</h1>
+            <p>Secure Access to Advanced Quantum Computing</p>
+        </div>
+
+        <div class="security-badge">
+            <i class="fas fa-shield-alt"></i>
+            Enterprise Security & Authentication
+        </div>
+
+        <div class="features">
+            <h3><i class="fas fa-star"></i> Advanced Capabilities</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Real-time Quantum Backend Monitoring</li>
+                <li><i class="fas fa-check"></i> Secure API Key Authentication</li>
+                <li><i class="fas fa-check"></i> Enterprise-grade Security</li>
+                <li><i class="fas fa-check"></i> Advanced Quantum Algorithm Support</li>
+            </ul>
+        </div>
+
         <form id="tokenForm">
             <div class="form-group">
-                <label for="apiToken">IBM Quantum API Token</label>
-                <input type="text" id="apiToken" name="apiToken" placeholder="Enter your API token here" required>
+                <label for="api_key">Quantum Platform API Key</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="password" id="api_key" name="api_key"
+                           placeholder="Enter your quantum platform API key"
+                           required autocomplete="off">
+                </div>
+                <div class="input-hint">
+                    Your API key is securely encrypted and never stored in plain text. Access is granted through enterprise-grade authentication.
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="crn">IBM Cloud CRN (Optional)</label>
-                <input type="text" id="crn" name="crn" placeholder="Enter your CRN if using IBM Cloud">
-                <small class="form-text">If you're using IBM Cloud Quantum, provide your CRN for better connection</small>
-            </div>
-            
-            <button type="submit" class="submit-btn" id="submitBtn">
-                Connect to IBM Quantum
+
+            <button type="submit" class="auth-btn" id="authBtn">
+                <span id="authText">Access Quantum Platform</span>
             </button>
+
+            <div id="loading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Authenticating with quantum platform...
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
         </form>
-        
-        <div class="error" id="errorMessage"></div>
-        <div class="success" id="successMessage"></div>
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Connecting to IBM Quantum...</p>
-        </div>
-        
-        <div class="info-box">
-            <h3>How to get your API token:</h3>
-            <p>1. Go to <a href="https://quantum-computing.ibm.com/" target="_blank">IBM Quantum Experience</a></p>
-            <p>2. Sign in or create an account</p>
-            <p>3. Go to Account Settings → API Token</p>
-            <p>4. Copy your token and paste it above</p>
-        </div>
-        
-        <div class="info-box">
-            <h3>Security Note:</h3>
-            <p>Your API token is stored only in your browser session and is never saved to disk. 
-            It will be cleared when you close your browser.</p>
+
+        <div class="back-link">
+            <a href="/auth">
+                <i class="fas fa-arrow-left"></i>
+                Back to Authentication
+            </a>
         </div>
     </div>
 
     <script>
-        document.getElementById('tokenForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const token = document.getElementById('apiToken').value.trim();
-            const crn = document.getElementById('crn').value.trim();
-            const submitBtn = document.getElementById('submitBtn');
-            const errorMessage = document.getElementById('errorMessage');
-            const successMessage = document.getElementById('successMessage');
+        document.addEventListener('DOMContentLoaded', function() {
+            const tokenForm = document.getElementById('tokenForm');
+            const authBtn = document.getElementById('authBtn');
+            const authText = document.getElementById('authText');
             const loading = document.getElementById('loading');
-            
-            // Clear previous messages
-            errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
-            
-            if (!token) {
-                showError('Please enter your API token');
-                return;
+            const statusMessage = document.getElementById('statusMessage');
+            const apiKeyInput = document.getElementById('api_key');
+
+            // Auto-focus on API key input
+            apiKeyInput.focus();
+
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = `status-message ${type}`;
+                statusMessage.style.display = 'block';
             }
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            loading.style.display = 'block';
-            
-            try {
-                const response = await fetch('/token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        token: token,
-                        crn: crn 
-                    })
-                });
-                // Store token locally for visualizer fallback
-                localStorage.setItem('ibmq_token', token);
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showSuccess('Successfully connected to IBM Quantum! Redirecting to dashboard...');
-                    // Redirect to dashboard after a short delay
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1500);
-                } else {
-                    showError(data.error || 'Failed to connect to IBM Quantum');
+
+            function hideStatus() {
+                statusMessage.style.display = 'none';
+            }
+
+            tokenForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const apiKey = apiKeyInput.value.trim();
+
+                if (!apiKey) {
+                    showStatus('Please enter your quantum platform API key', 'error');
+                    apiKeyInput.focus();
+                    return;
                 }
-            } catch (error) {
-                showError('Network error: ' + error.message);
-            } finally {
-                submitBtn.disabled = false;
-                loading.style.display = 'none';
-            }
+
+                // Show loading state
+                authBtn.disabled = true;
+                authText.style.display = 'none';
+                loading.classList.add('show');
+                hideStatus();
+
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('apikey', apiKey);
+
+                // Submit authentication request
+                fetch('/watsonx/authenticate', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showStatus('Authentication successful! Redirecting...', 'success');
+
+                        // Redirect after short delay
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/dashboard';
+                        }, 1000);
+                    } else {
+                        showStatus(data.error || 'Authentication failed', 'error');
+
+                        // Reset form
+                        authBtn.disabled = false;
+                        authText.style.display = 'block';
+                        loading.classList.remove('show');
+                        apiKeyInput.focus();
+                    }
+                })
+                .catch(error => {
+                    showStatus('Connection error. Please check your network and try again.', 'error');
+
+                    // Reset form
+                    authBtn.disabled = false;
+                    authText.style.display = 'block';
+                    loading.classList.remove('show');
+                });
+            });
+
+            // Clear status when user starts typing
+            apiKeyInput.addEventListener('input', function() {
+                if (statusMessage.style.display !== 'none') {
+                    hideStatus();
+                }
+            });
+
+            // Enter key support
+            apiKeyInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !authBtn.disabled) {
+                    tokenForm.dispatchEvent(new Event('submit'));
+                }
+            });
         });
-        
-        function showError(message) {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-        }
-        
-        function showSuccess(message) {
-            const successMessage = document.getElementById('successMessage');
-            successMessage.textContent = message;
-            successMessage.style.display = 'block';
-        }
     </script>
 </body>
 </html>

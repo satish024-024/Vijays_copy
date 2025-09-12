@@ -1323,7 +1323,7 @@ function updateFullscreenBlochVisualization() {
         phosphor_data = PHOSPHOR.slice(startidx);
     }
     
-    // Combine all data and update the plot
+    // Combine all data and plot
     const all_data = BLOCHSPHERE.concat(new_data).concat(phosphor_data);
     
     // Update the fullscreen plot

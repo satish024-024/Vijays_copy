@@ -4997,3 +4997,33 @@ section.widgets-grid > * {
     transform: translateY(-1px);
 }
 
+/* =============================
+   Tutorial & Modal Overlay Fix
+   ============================= */
+.modal-overlay,
+.modal-overlay.active,
+.overlay,
+.tutorial-overlay,
+.step-overlay,
+.tour-overlay,
+.introjs-overlay,
+.driver-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.35) !important; /* or transparent */
+}
+
+/* ==== Additional Tutorial Library Overlays Fix ====
+.driver-page-overlay,
+.driver-page-overlay.active,
+.shepherd-modal-overlay-container,
+.shepherd-modal-overlay-container.shepherd-modal-is-visible,
+.shepherd-modal-overlay-container.shepherd-modal-is-visible::before,
+.introjs-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+}
+
+</code_block_to_apply_changes_from>
+
