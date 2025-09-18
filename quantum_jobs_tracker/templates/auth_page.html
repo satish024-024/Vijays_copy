@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Research Platform - Secure Access</title>
+    <title>Quantum Spark - Authentication</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -26,10 +26,10 @@
         .auth-container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 50px;
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
             position: relative;
             overflow: hidden;
         }
@@ -68,16 +68,6 @@
             color: white;
             font-size: 28px;
             box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
-            position: relative;
-        }
-
-        .logo::before {
-            content: '⚛️';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 36px;
         }
 
         .header h1 {
@@ -95,21 +85,34 @@
             line-height: 1.5;
         }
 
-        .security-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            color: #0369a1;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
+        .auth-toggle {
+            display: flex;
             margin-bottom: 30px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
         }
 
-        .security-badge i {
-            font-size: 12px;
+        .toggle-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: #1e40af;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-form {
+            display: block;
         }
 
         .form-group {
@@ -160,13 +163,6 @@
             font-style: italic;
         }
 
-        .input-hint {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 6px;
-            line-height: 1.4;
-        }
-
         .auth-btn {
             width: 100%;
             padding: 18px;
@@ -185,10 +181,6 @@
         .auth-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
-        }
-
-        .auth-btn:active {
-            transform: translateY(0);
         }
 
         .auth-btn:disabled {
@@ -229,24 +221,6 @@
             border: 1px solid #fecaca;
         }
 
-        .back-link {
-            text-align: center;
-            margin-top: 25px;
-        }
-
-        .back-link a {
-            color: #3b82f6;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .back-link a:hover {
-            color: #1d4ed8;
-            text-decoration: underline;
-        }
-
         .features {
             background: #f8fafc;
             border-radius: 12px;
@@ -284,36 +258,6 @@
             font-size: 12px;
         }
 
-        .auth-toggle {
-            display: flex;
-            margin-bottom: 30px;
-            background: #f1f5f9;
-            border-radius: 12px;
-            padding: 4px;
-        }
-
-        .toggle-btn {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            background: transparent;
-            color: #64748b;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .toggle-btn.active {
-            background: white;
-            color: #1e40af;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .auth-form {
-            display: block;
-        }
-
         @media (max-width: 600px) {
             .auth-container {
                 padding: 30px 20px;
@@ -336,24 +280,19 @@
     <div class="auth-container">
         <div class="header">
             <div class="logo">
-                <!-- Quantum logo -->
+                <i class="fas fa-atom"></i>
             </div>
-            <h1>Quantum Research Platform</h1>
-            <p>Secure Access to Advanced Quantum Computing</p>
-        </div>
-
-        <div class="security-badge">
-            <i class="fas fa-shield-alt"></i>
-            Enterprise Security & Authentication
+            <h1>Quantum Spark</h1>
+            <p>Access Advanced Quantum Computing Dashboard</p>
         </div>
 
         <div class="features">
-            <h3><i class="fas fa-star"></i> Advanced Capabilities</h3>
+            <h3><i class="fas fa-star"></i> Dashboard Features</h3>
             <ul>
                 <li><i class="fas fa-check"></i> Real-time Quantum Backend Monitoring</li>
-                <li><i class="fas fa-check"></i> Secure API Key Authentication</li>
-                <li><i class="fas fa-check"></i> Enterprise-grade Security</li>
-                <li><i class="fas fa-check"></i> Advanced Quantum Algorithm Support</li>
+                <li><i class="fas fa-check"></i> 3D Quantum Circuit Visualizations</li>
+                <li><i class="fas fa-check"></i> Interactive Bloch Sphere</li>
+                <li><i class="fas fa-check"></i> AI-Powered Quantum Assistance</li>
             </ul>
         </div>
 
@@ -366,10 +305,10 @@
         <!-- Login Form -->
         <form id="loginForm" class="auth-form">
             <div class="form-group">
-                <label for="login_email">Email</label>
+                <label for="login_email">Email Address</label>
                 <div class="input-wrapper">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="login_email" name="email" placeholder="Enter your email" required>
+                    <input type="email" id="login_email" name="email" placeholder="Enter your email address" required>
                 </div>
             </div>
             <div class="form-group">
@@ -387,17 +326,17 @@
         <!-- Register Form -->
         <form id="registerForm" class="auth-form" style="display: none;">
             <div class="form-group">
-                <label for="reg_email">Email</label>
+                <label for="reg_email">Email Address</label>
                 <div class="input-wrapper">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="reg_email" name="email" placeholder="Enter your email" required>
+                    <input type="email" id="reg_email" name="email" placeholder="Enter your email address" required>
                 </div>
             </div>
             <div class="form-group">
                 <label for="reg_password">Password</label>
                 <div class="input-wrapper">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="reg_password" name="password" placeholder="Create a password" required>
+                    <input type="password" id="reg_password" name="password" placeholder="Create a secure password" required>
                 </div>
             </div>
             <div class="form-group">
@@ -419,20 +358,12 @@
             </button>
         </form>
 
-            <div id="loading" class="loading">
-                <i class="fas fa-spinner fa-spin"></i>
-                Authenticating with quantum platform...
-            </div>
-
-            <div id="statusMessage" class="status-message"></div>
-        </form>
-
-        <div class="back-link">
-            <a href="/auth">
-                <i class="fas fa-arrow-left"></i>
-                Back to Authentication
-            </a>
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            Processing...
         </div>
+
+        <div id="statusMessage" class="status-message"></div>
     </div>
 
     <script>
@@ -508,10 +439,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showStatus('Login successful! Redirecting...', 'success');
+                        showStatus('Login successful! Redirecting to dashboard...', 'success');
                         setTimeout(() => {
                             window.location.href = '/';
-                        }, 1000);
+                        }, 1500);
                     } else {
                         showStatus(data.message || 'Login failed', 'error');
                         hideLoading(document.getElementById('loginBtn'), document.getElementById('loginText'));
@@ -537,6 +468,11 @@
                     return;
                 }
 
+                if (password.length < 6) {
+                    showStatus('Password must be at least 6 characters long', 'error');
+                    return;
+                }
+
                 showLoading(document.getElementById('registerBtn'), document.getElementById('registerText'));
                 hideStatus();
 
@@ -550,10 +486,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showStatus('Registration successful! Redirecting...', 'success');
+                        showStatus('Registration successful! Redirecting to dashboard...', 'success');
                         setTimeout(() => {
                             window.location.href = '/';
-                        }, 1000);
+                        }, 1500);
                     } else {
                         showStatus(data.message || 'Registration failed', 'error');
                         hideLoading(document.getElementById('registerBtn'), document.getElementById('registerText'));

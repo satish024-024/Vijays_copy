@@ -1,21 +1,28 @@
-Flask==2.3.3
-numpy==1.24.3
-matplotlib==3.7.2
+# Core dependencies - compatible with Python 3.13
+Flask==3.0.0
+numpy==1.26.4
+matplotlib==3.8.4
 requests==2.31.0
-qiskit-ibm-runtime==0.15.0
-qiskit==0.44.3
-qiskit-aer==0.13.0
-flask-session
-cryptography
-keyring
-redis
-qiskit-algorithms==0.2.0
-qiskit-optimization==0.6.0
-qiskit-nature==0.6.0
-qiskit-machine-learning==0.7.0
-qiskit-finance==0.4.0
-qiskit-experiments==0.5.0
-qiskit-ibm-provider==0.6.0
-gunicorn==21.2.0
-plotly==5.17.0
-schedule==1.2.0
+
+# Qiskit ecosystem - latest stable versions
+qiskit==1.1.0
+qiskit-aer==0.14.2
+qiskit-ibm-runtime==0.26.0
+
+# Qiskit applications - compatible with Qiskit 1.x
+qiskit-algorithms==0.3.0
+qiskit-optimization==0.6.1
+qiskit-nature==0.7.2
+pyscf==2.3.0
+qiskit-machine-learning==0.7.2
+qiskit-finance==0.4.1
+qiskit-experiments==0.7.0
+
+# Web server
+gunicorn==22.0.0
+
+# Visualization
+plotly==5.19.0
+
+# Offline functionality
+schedule==1.2.1

@@ -24,10 +24,7 @@
     
     <!-- Google Gemini AI -->
     <script src="https://unpkg.com/@google/generative-ai@0.1.3/dist/index.js"></script>
-
-    <!-- Offline Manager for offline functionality -->
-    <script src="{{ url_for('static', filename='offline_manager.js') }}"></script>
-
+    
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -49,21 +46,6 @@
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
             --font-display: 'Orbitron', monospace;
-        }
-
-        /* Enhanced AI Spinner Animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .spinner {
-            border: 2px solid rgba(6, 182, 212, 0.3);
-            border-top: 2px solid var(--text-accent);
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
         }
 
         * {
@@ -124,25 +106,18 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            min-height: 80px;
-            width: 100%;
-            box-sizing: border-box;
         }
 
         .header-left {
             display: flex;
             align-items: center;
             gap: 1rem;
-            flex-shrink: 1;
-            min-width: 0;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            flex-shrink: 1;
-            min-width: 0;
+            gap: 1rem;
         }
 
         .logo-icon {
@@ -157,17 +132,11 @@
             font-size: 1.5rem;
             box-shadow: var(--shadow-glow);
             animation: pulse 2s ease-in-out infinite;
-            flex-shrink: 0;
         }
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
-        }
-
-        .logo-text {
-            min-width: 0;
-            flex-shrink: 1;
         }
 
         .logo-text h1 {
@@ -178,19 +147,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .logo-text .subtitle {
             font-size: 0.9rem;
             color: var(--text-accent);
             font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .hackathon-badge {
@@ -201,8 +163,6 @@
             font-weight: 600;
             box-shadow: var(--shadow-glow);
             animation: glow 3s ease-in-out infinite;
-            white-space: nowrap;
-            flex-shrink: 0;
         }
 
         @keyframes glow {
@@ -213,10 +173,7 @@
         .header-center {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            flex-shrink: 1;
-            min-width: 0;
-            justify-content: center;
+            gap: 2rem;
         }
 
         .connection-status {
@@ -230,16 +187,6 @@
             font-size: 0.875rem;
             font-weight: 600;
             box-shadow: var(--shadow-glow);
-            white-space: nowrap;
-            flex-shrink: 1;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .connection-status span {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         .connection-status.disconnected {
@@ -250,69 +197,59 @@
             background: var(--warning-gradient);
         }
 
-        .connection-status.offline {
-            background: var(--danger-gradient);
-        }
-
-        .offline-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            padding: 15px 20px;
-            box-shadow: var(--shadow-deep);
-            z-index: 1000;
-            max-width: 300px;
-            animation: slideIn 0.3s ease-out;
-            display: none;
-        }
-
-        .offline-notification.show {
-            display: block;
-        }
-
-        .offline-notification.success {
-            border-left: 4px solid #10b981;
-        }
-
-        .offline-notification.warning {
-            border-left: 4px solid #f59e0b;
-        }
-
-        .offline-notification.error {
-            border-left: 4px solid #ef4444;
-        }
-
-        .offline-notification .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
         .header-right {
             display: flex;
             align-items: center;
+            gap: 1rem;
+        }
+
+        .timer-display {
+            display: flex;
+            align-items: center;
             gap: 0.5rem;
-            flex-shrink: 0;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-weight: 600;
+            min-width: 80px;
+            justify-content: center;
+        }
+
+        .timer-display i {
+            color: var(--text-accent);
+        }
+
+        #countdown-timer {
+            font-size: 0.9rem;
+        }
+
+        .tutorial-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .tutorial-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tutorial-section h4 {
+            color: var(--text-accent);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tutorial-section p {
+            color: var(--text-secondary);
+            line-height: 1.6;
         }
 
         .btn {
@@ -366,18 +303,6 @@
         .btn-secondary:hover {
             background: var(--glass-border);
             transform: translateY(-2px);
-        }
-
-        .btn-info {
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            color: white;
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
-        }
-
-        .btn-info:hover {
-            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.4);
         }
 
         /* Notifications */
@@ -820,200 +745,16 @@
             color: var(--text-secondary);
         }
 
-        /* Tutorial Responsive Design */
-        @media (max-width: 1024px) {
-            .tutorial-tooltip {
-                min-width: 400px;
-                max-width: 450px;
-                padding: 1.5rem;
-                font-size: 0.95rem;
-            }
-
-            .tutorial-title {
-                font-size: 1.2rem;
-            }
-
-            .tutorial-content {
-                font-size: 1rem;
-            }
-
-            .tutorial-btn {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.95rem;
-                min-width: 100px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .tutorial-tooltip {
-                min-width: 320px;
-                max-width: 380px;
-                padding: 1.2rem;
-                font-size: 0.9rem;
-            }
-
-            .tutorial-title {
-                font-size: 1.1rem;
-            }
-
-            .tutorial-content {
-                font-size: 0.95rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .tutorial-btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
-                min-width: 90px;
-            }
-
-            .tutorial-navigation {
-                gap: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .tutorial-tooltip {
-                min-width: 280px;
-                max-width: 320px;
-                padding: 1rem;
-                font-size: 0.85rem;
-            }
-
-            .tutorial-title {
-                font-size: 1rem;
-            }
-
-            .tutorial-content {
-                font-size: 0.9rem;
-                margin-bottom: 1.2rem;
-            }
-
-            .tutorial-btn {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.85rem;
-                min-width: 80px;
-            }
-
-            .tutorial-header {
-                margin-bottom: 1rem;
-                padding-bottom: 0.8rem;
-            }
-
-            .tutorial-step-counter {
-                font-size: 0.8rem;
-                padding: 0.4rem 0.8rem;
-            }
-        }
-
         /* Responsive Design */
-        @media (max-width: 1200px) {
-            .header {
-                padding: 1rem 1.5rem;
-            }
-
-            .logo-text h1 {
-                font-size: 1.6rem;
-            }
-
-            .connection-status {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.8rem;
-            }
-
-            .hackathon-badge {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .header-center {
-                gap: 0.75rem;
-            }
-
-            .logo-text h1 {
-                font-size: 1.5rem;
-            }
-
-            .header-right {
-                gap: 0.25rem;
-            }
-
-            .btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.8rem;
-            }
-        }
-
         @media (max-width: 768px) {
             .header {
-                padding: 0.75rem 1rem;
+                padding: 1rem;
                 flex-direction: column;
-                gap: 0.75rem;
-                min-height: auto;
-            }
-
-            .header-left {
-                width: 100%;
-                justify-content: center;
+                gap: 1rem;
             }
 
             .header-center {
                 order: -1;
-                width: 100%;
-                justify-content: center;
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: center;
-                gap: 0.25rem;
-                flex-wrap: wrap;
-            }
-
-            .logo {
-                gap: 0.5rem;
-            }
-
-            .logo-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .logo-text h1 {
-                font-size: 1.3rem;
-            }
-
-            .logo-text .subtitle {
-                font-size: 0.8rem;
-            }
-
-            .connection-status {
-                padding: 0.5rem 1rem;
-                font-size: 0.75rem;
-                flex-shrink: 1;
-                min-width: 120px;
-            }
-
-            .hackathon-badge {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.75rem;
-                flex-shrink: 1;
-            }
-
-            .btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.75rem;
-                flex-shrink: 1;
-                min-width: 80px;
-            }
-
-            .btn span {
-                display: none;
             }
 
             .main-content {
@@ -1032,54 +773,6 @@
             .popup-modal {
                 width: 95vw;
                 height: 95vh;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header {
-                padding: 0.5rem 0.75rem;
-                gap: 0.5rem;
-            }
-
-            .header-left,
-            .header-center,
-            .header-right {
-                gap: 0.25rem;
-            }
-
-            .logo-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
-            }
-
-            .logo-text h1 {
-                font-size: 1.1rem;
-            }
-
-            .logo-text .subtitle {
-                font-size: 0.7rem;
-            }
-
-            .connection-status {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.7rem;
-                min-width: 100px;
-            }
-
-            .hackathon-badge {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.7rem;
-            }
-
-            .btn {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.7rem;
-                min-width: 70px;
-            }
-
-            .main-content {
-                padding: 0.75rem;
             }
         }
 
@@ -1186,215 +879,6 @@
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Tutorial System Styles */
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 3000;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        .tutorial-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-
-        .tutorial-highlight {
-            position: absolute;
-            background: rgba(6, 182, 212, 0.4);
-            border: 3px solid #06b6d4;
-            border-radius: 12px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 0 0 15px rgba(6, 182, 212, 0.6);
-            z-index: 3001;
-            pointer-events: none;
-            animation: tutorial-pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes tutorial-pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 0 0 15px rgba(6, 182, 212, 0.4), 0 0 25px rgba(6, 182, 212, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 0 0 20px rgba(6, 182, 212, 0.7), 0 0 40px rgba(6, 182, 212, 0.8);
-            }
-        }
-
-        .tutorial-tooltip {
-            position: absolute;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(25px);
-            border: 2px solid rgba(6, 182, 212, 0.5);
-            border-radius: 16px;
-            padding: 2rem;
-            min-width: 450px;
-            max-width: 550px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(6, 182, 212, 0.3);
-            z-index: 3002;
-            font-size: 1rem;
-            line-height: 1.6;
-            opacity: 0;
-            transform: scale(0.9) translateY(30px);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: auto;
-        }
-
-        .tutorial-tooltip.active {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-
-        .tutorial-tooltip::before {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 12px solid transparent;
-        }
-
-        .tutorial-tooltip.top::before {
-            border-bottom-color: rgba(15, 23, 42, 0.95);
-            border-top: none;
-            top: -24px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .tutorial-tooltip.bottom::before {
-            border-top-color: rgba(15, 23, 42, 0.95);
-            border-bottom: none;
-            bottom: -24px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .tutorial-tooltip.left::before {
-            border-right-color: rgba(15, 23, 42, 0.95);
-            border-left: none;
-            left: -24px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .tutorial-tooltip.right::before {
-            border-left-color: rgba(15, 23, 42, 0.95);
-            border-right: none;
-            right: -24px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .tutorial-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid rgba(6, 182, 212, 0.3);
-        }
-
-        .tutorial-title {
-            font-family: var(--font-display);
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #06b6d4;
-            margin: 0;
-            text-shadow: 0 2px 4px rgba(6, 182, 212, 0.3);
-        }
-
-        .tutorial-step-counter {
-            font-size: 0.9rem;
-            color: #cbd5e1;
-            font-weight: 600;
-            background: rgba(6, 182, 212, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        .tutorial-content {
-            color: #f1f5f9;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-            line-height: 1.7;
-        }
-
-        .tutorial-navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .tutorial-btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 120px;
-            justify-content: center;
-        }
-
-        .tutorial-btn.primary {
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
-        }
-
-        .tutorial-btn.primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6);
-        }
-
-        .tutorial-btn.secondary {
-            background: rgba(30, 41, 59, 0.8);
-            color: #f1f5f9;
-            border: 2px solid rgba(6, 182, 212, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .tutorial-btn.secondary:hover {
-            background: rgba(6, 182, 212, 0.2);
-            border-color: rgba(6, 182, 212, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .tutorial-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-
-        .tutorial-progress {
-            flex: 1;
-            height: 8px;
-            background: rgba(30, 41, 59, 0.5);
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid rgba(6, 182, 212, 0.2);
-        }
-
-        .tutorial-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #06b6d4 0%, #0891b2 50%, #06b6d4 100%);
-            border-radius: 4px;
-            transition: width 0.4s ease;
-            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-        }
     </style>
 </head>
 <body>
@@ -1427,17 +911,25 @@
         </div>
         
         <div class="header-right">
-            <button class="btn btn-secondary theme-switcher-btn" id="theme-switcher-btn">
+            <button class="btn btn-secondary" id="tutorial-btn">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Tutorial</span>
+            </button>
+            <div class="timer-display" id="timer-display">
+                <i class="fas fa-clock"></i>
+                <span id="countdown-timer">00:00</span>
+            </div>
+            <button class="btn btn-secondary" id="theme-switcher-btn">
                 <i class="fas fa-palette"></i>
                 <span>Theme</span>
-            </button>
-            <button class="btn btn-info" id="tutorials-btn">
-                <i class="fas fa-question-circle"></i>
-                Tutorials
             </button>
             <button class="btn btn-secondary" id="customize-btn">
                 <i class="fas fa-cog"></i>
                 Customize
+            </button>
+            <button class="btn btn-secondary" id="api-config-btn">
+                <i class="fas fa-key"></i>
+                API Config
             </button>
             <button class="btn btn-primary" id="refresh-all-btn">
                 <i class="fas fa-sync-alt"></i>
@@ -1445,6 +937,20 @@
             </button>
         </div>
     </header>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--background-gradient); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-primary);">
+        <div class="logo-icon" style="width: 80px; height: 80px; margin-bottom: 2rem;">
+            <i class="fas fa-atom" style="font-size: 3rem;"></i>
+        </div>
+        <div class="spinner" style="width: 60px; height: 60px; margin-bottom: 1rem;"></div>
+        <h2 style="margin-bottom: 1rem; font-family: var(--font-display);">Quantum Spark Dashboard</h2>
+        <p id="loading-status" style="color: var(--text-secondary);">Initializing quantum systems...</p>
+        <button id="quick-start-btn" class="btn btn-primary" style="margin-top: 2rem;">
+            <i class="fas fa-rocket"></i>
+            Quick Start (Skip Loading)
+        </button>
+    </div>
 
     <!-- Notifications Container -->
     <div class="notification-container" id="notification-container"></div>
@@ -1524,9 +1030,6 @@
                         Quantum Jobs
                     </h3>
                     <div class="widget-controls">
-                        <button class="widget-btn" data-action="add-api" title="Add API Instance">
-                            <i class="fas fa-plus-circle"></i>
-                        </button>
                         <button class="widget-btn" data-action="refresh" title="Refresh">
                             <i class="fas fa-sync-alt"></i>
                         </button>
@@ -1879,6 +1382,72 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Historical Data Widget -->
+            <div class="widget fade-in" data-widget="historical-data">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fas fa-history"></i>
+                        Historical Data
+                    </h3>
+                    <div class="widget-controls">
+                        <button class="widget-btn" data-action="refresh" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="widget-btn" data-action="popup" title="Popup View">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="widget-btn" data-action="fullscreen" title="Fullscreen">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
+                        <button class="widget-btn" data-action="remove" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <div class="loading" id="historical-data-loading">
+                        <div class="spinner"></div>
+                        <span>Loading historical data...</span>
+                    </div>
+                    <div id="historical-data-content" style="display: none;">
+                        <!-- Historical data will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backend Comparison Widget -->
+            <div class="widget fade-in" data-widget="backend-comparison">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fas fa-balance-scale"></i>
+                        Backend Comparison
+                    </h3>
+                    <div class="widget-controls">
+                        <button class="widget-btn" data-action="refresh" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="widget-btn" data-action="popup" title="Popup View">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="widget-btn" data-action="fullscreen" title="Fullscreen">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
+                        <button class="widget-btn" data-action="remove" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <div class="loading" id="backend-comparison-loading">
+                        <div class="spinner"></div>
+                        <span>Loading backend comparison...</span>
+                    </div>
+                    <div id="backend-comparison-content" style="display: none;">
+                        <!-- Backend comparison will be loaded here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -1893,6 +1462,89 @@
             </div>
             <div class="popup-content" id="popup-content">
                 <!-- Popup content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div class="popup-overlay" id="tutorial-modal">
+        <div class="popup-modal" style="max-width: 800px; max-height: 600px;">
+            <div class="popup-header">
+                <h3><i class="fas fa-graduation-cap"></i> Quantum Dashboard Tutorial</h3>
+                <button class="popup-close" id="close-tutorial">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="popup-content">
+                <div class="tutorial-content">
+                    <div class="tutorial-section">
+                        <h4><i class="fas fa-atom"></i> Getting Started</h4>
+                        <p>Welcome to the Quantum Spark Dashboard! This tutorial will help you understand how to use all the features.</p>
+                    </div>
+                    
+                    <div class="tutorial-section">
+                        <h4><i class="fas fa-server"></i> Quantum Backends</h4>
+                        <p>View available IBM Quantum backends, their status, and capabilities. Click on any backend to see detailed information.</p>
+                    </div>
+                    
+                    <div class="tutorial-section">
+                        <h4><i class="fas fa-tasks"></i> Quantum Jobs</h4>
+                        <p>Monitor your quantum computing jobs in real-time. See execution progress, queue positions, and results.</p>
+                    </div>
+                    
+                    <div class="tutorial-section">
+                        <h4><i class="fas fa-globe"></i> 3D Bloch Sphere</h4>
+                        <p>Interact with the 3D visualization of quantum states. Apply gates, rotate the sphere, and see state evolution.</p>
+                    </div>
+                    
+                    <div class="tutorial-section">
+                        <h4><i class="fas fa-cube"></i> 3D Quantum Circuit</h4>
+                        <p>Visualize quantum circuits in 3D space. Watch gate sequences and circuit execution step by step.</p>
+                    </div>
+                    
+                    <div class="tutorial-section">
+                        <h4><i class="fas fa-robot"></i> AI Assistant</h4>
+                        <p>Chat with our AI quantum assistant for help, explanations, and code generation.</p>
+                    </div>
+                    
+                    <div class="tutorial-section">
+                        <h4><i class="fas fa-clock"></i> Timer & Refresh</h4>
+                        <p>The timer shows when the dashboard will auto-refresh. You can manually refresh anytime or customize the interval.</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button class="btn btn-secondary" id="tutorial-next">Next</button>
+                    <button class="btn btn-primary" id="tutorial-close">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Configuration Modal -->
+    <div class="popup-overlay" id="api-config-modal">
+        <div class="popup-modal" style="max-width: 500px;">
+            <div class="popup-header">
+                <h3>IBM Quantum API Configuration</h3>
+                <button class="popup-close" id="close-api-config">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="popup-content">
+                <div style="margin-bottom: 1rem;">
+                    <label for="api-token" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">API Token:</label>
+                    <input type="password" id="api-token" placeholder="Enter your IBM Quantum API token" 
+                           style="width: 100%; padding: 0.75rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-primary);">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="api-name" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Instance Name:</label>
+                    <input type="text" id="api-name" placeholder="My Quantum Instance" 
+                           style="width: 100%; padding: 0.75rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-primary);">
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="cancel-api-config">Cancel</button>
+                    <button class="btn btn-primary" id="save-api-config">Save Configuration</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1962,38 +1614,19 @@
                         <i class="fas fa-plus"></i>
                     </button>
                 </li>
+                <li class="widget-item" data-widget="historical-data">
+                    <span><i class="fas fa-history"></i> Historical Data</span>
+                    <button class="widget-btn" data-action="add">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </li>
+                <li class="widget-item" data-widget="backend-comparison">
+                    <span><i class="fas fa-balance-scale"></i> Backend Comparison</span>
+                    <button class="widget-btn" data-action="add">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </li>
             </ul>
-        </div>
-    </div>
-
-    <!-- Tutorial System -->
-    <div class="tutorial-overlay" id="tutorial-overlay">
-        <div class="tutorial-highlight" id="tutorial-highlight"></div>
-        <div class="tutorial-tooltip" id="tutorial-tooltip">
-            <div class="tutorial-header">
-                <h3 class="tutorial-title" id="tutorial-title">Welcome to Quantum Spark!</h3>
-                <span class="tutorial-step-counter" id="tutorial-step-counter">Step 1 of 8</span>
-            </div>
-            <div class="tutorial-content" id="tutorial-content">
-                Welcome to your Quantum Computing Dashboard! This tutorial will guide you through all the amazing features available in Quantum Spark.
-            </div>
-            <div class="tutorial-navigation">
-                <button class="tutorial-btn secondary" id="tutorial-skip">
-                    <i class="fas fa-times"></i>
-                    Skip Tutorial
-                </button>
-                <div class="tutorial-progress">
-                    <div class="tutorial-progress-bar" id="tutorial-progress-bar"></div>
-                </div>
-                <button class="tutorial-btn primary" id="tutorial-prev" disabled>
-                    <i class="fas fa-chevron-left"></i>
-                    Previous
-                </button>
-                <button class="tutorial-btn primary" id="tutorial-next">
-                    Next
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
         </div>
     </div>
 
@@ -2018,607 +1651,215 @@
     <script src="/static/bloch_sphere/src/libs/three/three.min.js"></script>
 
     <!-- Load Three.js Controls -->
+    <script src="/static/orbitcontrols_fixed.js"></script>
     <script>
-        // Load OrbitControls from CDN (compatible with global THREE)
-        const orbitScript = document.createElement('script');
-        orbitScript.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
-        orbitScript.onload = function() {
-            console.log('OrbitControls loaded');
-            window.OrbitControlsLoaded = true;
-        };
-        orbitScript.onerror = function() {
-            console.error(' Failed to load OrbitControls');
-        };
-        document.head.appendChild(orbitScript);
+        // Set OrbitControls loaded flag
+        window.OrbitControlsLoaded = true;
+        console.log('✅ OrbitControls loaded');
     </script>
 
     <!-- Theme Switcher -->
     <script src="/static/theme_switcher.js"></script>
     
-    <!-- Notifications helper -->
-    <script src="/static/enhanced_notifications.js"></script>
-    
-    <!-- Main Dashboard Script -->
-    <!-- Quantum Backend Predictor -->
-    <script src="/static/quantum_backend_predictor.js"></script>
-    
     <!-- Main Dashboard Script -->
     <script src="/static/hackathon_dashboard.js"></script>
     
-    <!-- Backend Comparison (Compare button + modal) -->
-    <script src="static/backend_comparison.js"></script>
-
-    <!-- Offline Status Management -->
+    <!-- Additional JavaScript for enhanced functionality -->
     <script>
-        // Offline status management for hackathon dashboard
-        document.addEventListener('DOMContentLoaded', async () => {
-            const connectionStatus = document.querySelector('.connection-status') || createConnectionStatus();
-            const statusIcon = connectionStatus.querySelector('i');
-            const statusText = connectionStatus.querySelector('span');
-
-            // Wait for offline manager to initialize
-            let offlineManager;
-            const checkOfflineManager = setInterval(() => {
-                if (window.offlineManager) {
-                    offlineManager = window.offlineManager;
-                    clearInterval(checkOfflineManager);
-                    initializeOfflineStatus();
-                }
-            }, 100);
-
-            function createConnectionStatus() {
-                // Create connection status if it doesn't exist
-                const header = document.querySelector('.header-center') || document.querySelector('header');
-                if (!header) return null;
-
-                const statusDiv = document.createElement('div');
-                statusDiv.className = 'connection-status';
-                statusDiv.innerHTML = '<i class="fas fa-circle"></i> <span>Checking connection...</span>';
-                header.appendChild(statusDiv);
-                return statusDiv;
-            }
-
-            function initializeOfflineStatus() {
-                updateConnectionStatus();
-                setupOfflineNotifications();
-
-                // Update status periodically
-                setInterval(updateConnectionStatus, 30000);
-            }
-
-            function updateConnectionStatus() {
-                if (!offlineManager || !connectionStatus) return;
-
-                const isOnline = offlineManager.isOnlineStatus();
-
-                if (isOnline) {
-                    connectionStatus.className = 'connection-status';
-                    if (statusIcon) statusIcon.className = 'fas fa-circle';
-                    if (statusText) statusText.textContent = 'Connected to IBM Quantum';
-                } else {
-                    connectionStatus.className = 'connection-status offline';
-                    if (statusIcon) statusIcon.className = 'fas fa-circle';
-                    if (statusText) statusText.textContent = 'Offline Mode - Using Cached Data';
-                }
-            }
-
-            function setupOfflineNotifications() {
-                if (offlineManager) {
-                    checkDataFreshness();
-                }
-            }
-
-            async function checkDataFreshness() {
-                try {
-                    const response = await fetch('/api/sync_status');
-                    const data = await response.json();
-
-                    if (data.success) {
-                        const isFresh15 = data.is_data_fresh_15min;
-                        const isFresh30 = data.is_data_fresh_30min;
-
-                        if (!isFresh15 && !isFresh30) {
-                            showOfflineNotification(
-                                'Data is stale',
-                                'Your cached data is more than 30 minutes old. Connect to internet for fresh data.',
-                                'warning'
-                            );
-                        } else if (!isFresh15) {
-                            showOfflineNotification(
-                                'Data is getting old',
-                                'Your cached data is more than 15 minutes old.',
-                                'info'
-                            );
-                        }
-                    }
-                } catch (error) {
-                    console.log('Could not check data freshness:', error);
-                }
-            }
-
-            function showOfflineNotification(title, message, type = 'info') {
-                const existing = document.querySelectorAll('.offline-notification');
-                existing.forEach(el => el.remove());
-
-                const notification = document.createElement('div');
-                notification.className = `offline-notification ${type} show`;
-                notification.innerHTML = `
-                    <button class="close-btn" onclick="this.parentElement.remove()">&times;</button>
-                    <h4 style="margin: 0 0 8px 0; color: var(--text-primary);">${title}</h4>
-                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">${message}</p>
-                `;
-
-                document.body.appendChild(notification);
-
-                setTimeout(() => {
-                    if (notification.parentElement) {
-                        notification.remove();
-                    }
-                }, 10000);
-            }
-
-            // Add offline status button to header
-            const headerRight = document.querySelector('.header-right');
-            if (headerRight) {
-                const offlineBtn = document.createElement('button');
-                offlineBtn.className = 'btn btn-secondary';
-                offlineBtn.innerHTML = '<i class="fas fa-wifi"></i> <span>Offline Status</span>';
-                offlineBtn.onclick = () => {
-                    window.open('/offline_status', '_blank');
-                };
-                headerRight.appendChild(offlineBtn);
-            }
-        });
-    </script>
-
-    <!-- Tutorial System Script -->
-    <script>
-        class TutorialSystem {
-            constructor() {
-                this.currentStep = 0;
-                this.isActive = false;
-                this.steps = [
-                    {
-                        title: "Welcome to Quantum Spark!",
-                        content: "Welcome to your Quantum Computing Dashboard! This tutorial will guide you through all the amazing features available in Quantum Spark. Let's explore what makes this dashboard special.",
-                        target: null,
-                        position: "center"
-                    },
-                    {
-                        title: "Header Controls",
-                        content: "This header contains important controls: the connection status shows if you're connected to IBM Quantum, the Theme button lets you customize the appearance, and the Customize button allows you to add/remove dashboard widgets.",
-                        target: ".header-center",
-                        position: "bottom"
-                    },
-                    {
-                        title: "Metrics Overview",
-                        content: "These cards show real-time statistics about your quantum computing resources. You can see the number of active backends, total jobs, running jobs, and success rates at a glance.",
-                        target: ".metrics-grid",
-                        position: "bottom"
-                    },
-                    {
-                        title: "AI Assistant Panel",
-                        content: "Ask questions about quantum computing concepts, circuit design, or any quantum-related topic. The AI assistant powered by Google Gemini will help you understand complex quantum concepts.",
-                        target: ".ai-panel",
-                        position: "bottom"
-                    },
-                    {
-                        title: "3D Bloch Sphere Widget",
-                        content: "This interactive 3D visualization shows quantum states on the Bloch sphere. Use the toolbox on the right to apply quantum gates and see how they transform the quantum state in real-time.",
-                        target: "[data-widget='bloch-sphere']",
-                        position: "top"
-                    },
-                    {
-                        title: "Quantum Jobs Widget",
-                        content: "Monitor all your quantum jobs in real-time. Track their status, execution time, and results. Use the widget controls to refresh, view in popup, or remove the widget.",
-                        target: "[data-widget='jobs']",
-                        position: "top"
-                    },
-                    {
-                        title: "Widget Controls",
-                        content: "Each widget has control buttons: Refresh (🔄) to update data, Expand (⛶) for popup view, External Link (⧉) for fullscreen, and Remove (✕) to hide the widget.",
-                        target: "[data-widget='backends'] .widget-controls",
-                        position: "left"
-                    },
-                    {
-                        title: "Customization Panel",
-                        content: "Click the Customize button in the header to access the customization panel. Here you can add new widgets to your dashboard or remove existing ones to create your perfect workspace.",
-                        target: "#customize-btn",
-                        position: "bottom"
-                    }
-                ];
-
-                this.init();
-            }
-
-            init() {
-                // Add event listener to tutorials button
-                document.getElementById('tutorials-btn').addEventListener('click', () => {
-                    this.startTutorial();
-                });
-
-                // Add event listeners for tutorial controls
-                document.getElementById('tutorial-next').addEventListener('click', () => {
-                    this.nextStep();
-                });
-
-                document.getElementById('tutorial-prev').addEventListener('click', () => {
-                    this.previousStep();
-                });
-
-                document.getElementById('tutorial-skip').addEventListener('click', () => {
-                    this.endTutorial();
-                });
-
-                // Close tutorial on overlay click
-                document.getElementById('tutorial-overlay').addEventListener('click', (e) => {
-                    if (e.target.id === 'tutorial-overlay') {
-                        this.endTutorial();
-                    }
-                });
-
-                // Handle window resize to reposition tutorial
-                window.addEventListener('resize', () => {
-                    if (this.isActive) {
-                        this.positionElements(this.steps[this.currentStep]);
-                    }
-                });
-
-                // Handle keyboard navigation
-                document.addEventListener('keydown', (e) => {
-                    if (!this.isActive) return;
-
-                    if (e.key === 'Escape') {
-                        this.endTutorial();
-                    } else if (e.key === 'ArrowRight' && !document.getElementById('tutorial-next').disabled) {
-                        this.nextStep();
-                    } else if (e.key === 'ArrowLeft' && !document.getElementById('tutorial-prev').disabled) {
-                        this.previousStep();
-                    }
-                });
-            }
-
-            startTutorial() {
-                this.currentStep = 0;
-                this.isActive = true;
-                this.showTutorial();
-                document.getElementById('tutorial-overlay').classList.add('active');
-            }
-
-            endTutorial() {
-                this.isActive = false;
-                document.getElementById('tutorial-overlay').classList.remove('active');
-                document.getElementById('tutorial-tooltip').classList.remove('active');
-                document.getElementById('tutorial-highlight').style.display = 'none';
-            }
-
-            showTutorial() {
-                const step = this.steps[this.currentStep];
-
-                // Update content
-                document.getElementById('tutorial-title').textContent = step.title;
-                document.getElementById('tutorial-content').textContent = step.content;
-                document.getElementById('tutorial-step-counter').textContent =
-                    `Step ${this.currentStep + 1} of ${this.steps.length}`;
-
-                // Update progress bar
-                const progress = ((this.currentStep + 1) / this.steps.length) * 100;
-                document.getElementById('tutorial-progress-bar').style.width = progress + '%';
-
-                // Update navigation buttons
-                document.getElementById('tutorial-prev').disabled = this.currentStep === 0;
-                document.getElementById('tutorial-next').textContent =
-                    this.currentStep === this.steps.length - 1 ? 'Finish' : 'Next';
-                document.getElementById('tutorial-next').innerHTML =
-                    this.currentStep === this.steps.length - 1 ?
-                    'Finish' :
-                    'Next <i class="fas fa-chevron-right"></i>';
-
-                // Position highlight and tooltip
-                this.positionElements(step);
-
-                // Show tooltip with animation
-                setTimeout(() => {
-                    document.getElementById('tutorial-tooltip').classList.add('active');
-                }, 100);
-            }
-
-            positionElements(step) {
-                const highlight = document.getElementById('tutorial-highlight');
-                const tooltip = document.getElementById('tutorial-tooltip');
-
-                if (step.target) {
-                    const targetElement = document.querySelector(step.target);
-                    if (targetElement) {
-                        const rect = targetElement.getBoundingClientRect();
-                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-                        // Position highlight
-                        highlight.style.display = 'block';
-                        highlight.style.top = (rect.top + scrollTop - 8) + 'px';
-                        highlight.style.left = (rect.left + scrollLeft - 8) + 'px';
-                        highlight.style.width = (rect.width + 16) + 'px';
-                        highlight.style.height = (rect.height + 16) + 'px';
-
-                        // Position tooltip based on position preference - responsive sizing
-                        let tooltipWidth = 500;
-                        let tooltipHeight = 280;
-
-                        // Adjust size based on screen width
-                        if (window.innerWidth <= 480) {
-                            tooltipWidth = 300;
-                            tooltipHeight = 220;
-                        } else if (window.innerWidth <= 768) {
-                            tooltipWidth = 380;
-                            tooltipHeight = 240;
-                        } else if (window.innerWidth <= 1024) {
-                            tooltipWidth = 450;
-                            tooltipHeight = 260;
-                        }
-                        let tooltipTop, tooltipLeft;
-
-                        switch (step.position) {
-                            case 'top':
-                                tooltipTop = rect.top + scrollTop - tooltipHeight - 30;
-                                tooltipLeft = rect.left + scrollLeft + (rect.width / 2) - (tooltipWidth / 2);
-                                tooltip.className = 'tutorial-tooltip top';
-                                break;
-                            case 'bottom':
-                                tooltipTop = rect.bottom + scrollTop + 30;
-                                tooltipLeft = rect.left + scrollLeft + (rect.width / 2) - (tooltipWidth / 2);
-                                tooltip.className = 'tutorial-tooltip bottom';
-                                break;
-                            case 'left':
-                                tooltipTop = rect.top + scrollTop + (rect.height / 2) - (tooltipHeight / 2);
-                                tooltipLeft = rect.left + scrollLeft - tooltipWidth - 30;
-                                tooltip.className = 'tutorial-tooltip left';
-                                break;
-                            case 'right':
-                                tooltipTop = rect.top + scrollTop + (rect.height / 2) - (tooltipHeight / 2);
-                                tooltipLeft = rect.right + scrollLeft + 30;
-                                tooltip.className = 'tutorial-tooltip right';
-                                break;
-                        }
-
-                        // Ensure tooltip stays within viewport with better margins
-                        const margin = 40;
-                        if (tooltipLeft < margin) tooltipLeft = margin;
-                        if (tooltipLeft + tooltipWidth > window.innerWidth - margin) {
-                            tooltipLeft = window.innerWidth - tooltipWidth - margin;
-                        }
-                        if (tooltipTop < margin) tooltipTop = margin;
-                        if (tooltipTop + tooltipHeight > window.innerHeight - margin) {
-                            tooltipTop = window.innerHeight - tooltipHeight - margin;
-                        }
-
-                        tooltip.style.top = tooltipTop + 'px';
-                        tooltip.style.left = tooltipLeft + 'px';
-                        tooltip.style.transform = 'scale(0.9) translateY(30px)';
-                    }
-                } else {
-                    // Center position for welcome screen
-                    highlight.style.display = 'none';
-                    tooltip.className = 'tutorial-tooltip';
-                    tooltip.style.top = '50%';
-                    tooltip.style.left = '50%';
-                    tooltip.style.transform = 'translate(-50%, -50%) scale(0.9)';
-                }
-            }
-
-            nextStep() {
-                if (this.currentStep < this.steps.length - 1) {
-                    this.currentStep++;
-                    this.showTutorial();
-                } else {
-                    this.endTutorial();
-                    this.showCompletionMessage();
-                }
-            }
-
-            previousStep() {
-                if (this.currentStep > 0) {
-                    this.currentStep--;
-                    this.showTutorial();
-                }
-            }
-
-            showCompletionMessage() {
-                // Show a completion notification
-                const notification = {
-                    type: 'success',
-                    title: 'Tutorial Completed!',
-                    message: 'Great! You now know how to use Quantum Spark. Feel free to explore all the features and start your quantum computing journey!',
-                    duration: 5000
-                };
-
-                // You can integrate this with your existing notification system
-                if (window.showNotification) {
-                    window.showNotification(notification);
-                } else {
-                    alert(notification.message);
-                }
-            }
-        }
-
-        // Initialize tutorial system when DOM is loaded
+        // Initialize dashboard when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            new TutorialSystem();
+            console.log('🚀 Initializing Quantum Spark Dashboard...');
+            
+            // Initialize the dashboard
+            if (typeof HackathonDashboard !== 'undefined') {
+                window.dashboard = new HackathonDashboard();
+                console.log('✅ Hackathon Dashboard initialized successfully');
+            } else {
+                console.error('❌ HackathonDashboard class not found');
+            }
+            
+            // Setup additional event listeners
+            setupAdditionalEventListeners();
+        });
+        
+        function setupAdditionalEventListeners() {
+            // API Configuration Modal
+            const apiConfigBtn = document.getElementById('api-config-btn');
+            const apiConfigModal = document.getElementById('api-config-modal');
+            const closeApiConfig = document.getElementById('close-api-config');
+            const cancelApiConfig = document.getElementById('cancel-api-config');
+            const saveApiConfig = document.getElementById('save-api-config');
+            
+            if (apiConfigBtn && apiConfigModal) {
+                apiConfigBtn.addEventListener('click', () => {
+                    apiConfigModal.classList.add('active');
+                });
+            }
+            
+            if (closeApiConfig && apiConfigModal) {
+                closeApiConfig.addEventListener('click', () => {
+                    apiConfigModal.classList.remove('active');
+                });
+            }
+            
+            if (cancelApiConfig && apiConfigModal) {
+                cancelApiConfig.addEventListener('click', () => {
+                    apiConfigModal.classList.remove('active');
+                });
+            }
+            
+            if (saveApiConfig) {
+                saveApiConfig.addEventListener('click', () => {
+                    const token = document.getElementById('api-token').value;
+                    const name = document.getElementById('api-name').value;
+                    
+                    if (token && name) {
+                        // Save API configuration
+                        localStorage.setItem('quantum_api_token', token);
+                        localStorage.setItem('quantum_api_name', name);
+                        
+                        // Show success notification
+                        if (window.dashboard && window.dashboard.showNotification) {
+                            window.dashboard.showNotification('✅ API configuration saved successfully!', 'success');
+                        }
+                        
+                        apiConfigModal.classList.remove('active');
+                        
+                        // Refresh dashboard with new API
+                        if (window.dashboard && window.dashboard.updateAllWidgets) {
+                            window.dashboard.updateAllWidgets();
+                        }
+                    } else {
+                        if (window.dashboard && window.dashboard.showNotification) {
+                            window.dashboard.showNotification('Please fill in all fields', 'error');
+                        }
+                    }
+                });
+            }
+            
+            // Theme Switcher
+            const themeBtn = document.getElementById('theme-switcher-btn');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    if (window.dashboard && window.dashboard.toggleTheme) {
+                        window.dashboard.toggleTheme();
+                    } else {
+                        // Fallback theme toggle
+                        document.body.classList.toggle('dark-theme');
+                        const isDark = document.body.classList.contains('dark-theme');
+                        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                    }
+                });
+            }
+            
+            // Customize Button
+            const customizeBtn = document.getElementById('customize-btn');
+            const customizationPanel = document.getElementById('customization-panel');
+            const closeCustomization = document.getElementById('close-customization');
+            
+            if (customizeBtn && customizationPanel) {
+                customizeBtn.addEventListener('click', () => {
+                    customizationPanel.classList.toggle('open');
+                });
+            }
+            
+            if (closeCustomization && customizationPanel) {
+                closeCustomization.addEventListener('click', () => {
+                    customizationPanel.classList.remove('open');
+                });
+            }
+            
+            // Refresh All Button
+            const refreshAllBtn = document.getElementById('refresh-all-btn');
+            if (refreshAllBtn) {
+                refreshAllBtn.addEventListener('click', () => {
+                    if (window.dashboard && window.dashboard.updateAllWidgets) {
+                        window.dashboard.updateAllWidgets();
+                        if (window.dashboard.showNotification) {
+                            window.dashboard.showNotification('🔄 Refreshing all widgets...', 'info');
+                        }
+                    }
+                });
+            }
+            
+            // AI Input Handler
+            const aiInput = document.getElementById('ai-input');
+            if (aiInput) {
+                aiInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const query = aiInput.value.trim();
+                        if (query && window.dashboard && window.dashboard.processAIQuery) {
+                            window.dashboard.processAIQuery(query);
+                            aiInput.value = '';
+                        }
+                    }
+                });
+            }
+            
+            // Chat Input Handler
+            const chatInput = document.getElementById('chat-input');
+            const sendMessage = document.getElementById('send-message');
+            
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendChatMessage();
+                    }
+                });
+            }
+            
+            if (sendMessage) {
+                sendMessage.addEventListener('click', sendChatMessage);
+            }
+            
+            function sendChatMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    // Add user message to chat
+                    const chatMessages = document.getElementById('chat-messages');
+                    if (chatMessages) {
+                        const userMessage = document.createElement('div');
+                        userMessage.className = 'message user-message';
+                        userMessage.innerHTML = `
+                            <div class="message-content">
+                                <i class="fas fa-user"></i>
+                                ${message}
+                            </div>
+                        `;
+                        chatMessages.appendChild(userMessage);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                    
+                    // Process with AI
+                    if (window.dashboard && window.dashboard.processAIQuery) {
+                        window.dashboard.processAIQuery(message);
+                    }
+                    
+                    chatInput.value = '';
+                }
+            }
+        }
+        
+        // Global functions for widget interactions
+        window.viewJobDetails = function(jobId) {
+            if (window.dashboard && window.dashboard.viewJobDetails) {
+                window.dashboard.viewJobDetails(jobId);
+            }
+        };
+        
+        window.applyQuantumGate = function(gate) {
+            if (window.dashboard && window.dashboard.applyQuantumGate) {
+                window.dashboard.applyQuantumGate(gate);
+            }
+        };
+        
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
         });
     </script>
-
-    <!-- API Instance Configuration Modal -->
-    <div id="api-config-modal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3 style="margin: 0; color: var(--text-primary);">
-                    <i class="fas fa-plus-circle"></i>
-                    Add IBM Quantum API
-                </h3>
-                <button class="modal-close" onclick="closeApiConfigModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="api-config-form">
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="api-token" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 500;">
-                            IBM Quantum API Token
-                        </label>
-                        <input type="password" id="api-token" name="apiToken" placeholder="Enter your API token here" required
-                               style="width: 100%; padding: 0.75rem; border: 1px solid var(--glass-border); border-radius: var(--border-radius); background: var(--glass-bg); color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem;">
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="api-crn" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 500;">
-                            IBM Cloud CRN (Optional)
-                        </label>
-                        <input type="text" id="api-crn" name="apiCrn" placeholder="Enter your CRN if using IBM Cloud"
-                               style="width: 100%; padding: 0.75rem; border: 1px solid var(--glass-border); border-radius: var(--border-radius); background: var(--glass-bg); color: var(--text-primary); font-family: var(--font-family);">
-                        <small style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
-                            If you're using IBM Cloud Quantum, provide your CRN for better connection
-                        </small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeApiConfigModal()">
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </button>
-                <button type="button" class="btn-primary" onclick="addApiInstance()">
-                    <i class="fas fa-plus-circle"></i>
-                    Add IBM Quantum API
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Styles -->
-    <style>
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--border-radius);
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-deep);
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-footer {
-            padding: 1.5rem;
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-        }
-
-        .btn-primary, .btn-secondary {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: var(--border-radius);
-            font-family: var(--font-family);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--text-accent);
-            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
-        }
-
-        /* Notification animations */
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    </style>
-
 </body>
 </html>

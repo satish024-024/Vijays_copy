@@ -237,14 +237,14 @@ async function init_bloch_sphere() {
         
         console.log('✅ Enhanced Bloch sphere initialized in dashboard');
         
-        // Set up periodic refresh of quantum data
-        setInterval(async () => {
-            await fetchQuantumData();
-            // Update visualization if it exists
-            if (typeof update_state_plot === 'function') {
-                update_state_plot();
-            }
-        }, 30000); // Refresh every 30 seconds
+        // DISABLED: Set up periodic refresh of quantum data - CAUSING RAPID REFRESHING
+        // setInterval(async () => {
+        //     await fetchQuantumData();
+        //     // Update visualization if it exists
+        //     if (typeof update_state_plot === 'function') {
+        //         update_state_plot();
+        //     }
+        // }, 30000); // Refresh every 30 seconds
         
     } catch (error) {
         console.error('❌ Error initializing Bloch sphere:', error);

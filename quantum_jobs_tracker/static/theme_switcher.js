@@ -29,6 +29,12 @@ class ThemeSwitcher {
                 icon: 'fas fa-briefcase',
                 route: '/professional',
                 description: 'Clean professional dashboard for business presentations'
+            },
+            'production': {
+                name: 'Production',
+                icon: 'fas fa-industry',
+                route: '/production-dashboard',
+                description: 'Production-grade dashboard with gray theme and advanced animations'
             }
         };
         
@@ -48,6 +54,7 @@ class ThemeSwitcher {
         if (path.includes('/advanced')) return 'advanced';
         if (path.includes('/modern')) return 'modern';
         if (path.includes('/professional')) return 'professional';
+        if (path.includes('/production-dashboard')) return 'production';
         return 'hackathon'; // default
     }
 

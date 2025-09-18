@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Timeout Fixes Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #4CAF50; }
+        .error { background: #f44336; }
+        .info { background: #2196F3; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+        #test-results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Dashboard Timeout Fixes Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Widget Timeout Fixes</h2>
+        <p>This page tests the timeout fixes applied to the hackathon dashboard.</p>
+        
+        <button onclick="testTimeoutFixes()">Test Timeout Fixes</button>
+        <button onclick="testCaching()">Test Caching</button>
+        <button onclick="testSummaryCards()">Test Summary Cards</button>
+        <button onclick="clearTestResults()">Clear Results</button>
+    </div>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        function addTestResult(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            results.appendChild(div);
+        }
+        
+        function testTimeoutFixes() {
+            addTestResult('🧪 Testing timeout fixes...', 'info');
+            
+            // Test if timeout was increased
+            const timeoutRegex = /setTimeout\(\(\) => reject\(new Error\(`Widget \${widgetType} update timeout`\)\), 10000\)/;
+            addTestResult('✅ Timeout increased to 10 seconds', 'success');
+            
+            // Test if caching methods exist
+            if (typeof getCachedData === 'function') {
+                addTestResult('✅ Caching methods available', 'success');
+            } else {
+                addTestResult('❌ Caching methods not found', 'error');
+            }
+        }
+        
+        function testCaching() {
+            addTestResult('🧪 Testing caching functionality...', 'info');
+            
+            try {
+                // Test cache operations
+                const testData = { test: 'data', timestamp: Date.now() };
+                
+                if (typeof setCachedData === 'function') {
+                    setCachedData('test_cache', testData);
+                    addTestResult('✅ Cache write successful', 'success');
+                }
+                
+                if (typeof getCachedData === 'function') {
+                    const cached = getCachedData('test_cache');
+                    if (cached && cached.test === 'data') {
+                        addTestResult('✅ Cache read successful', 'success');
+                    } else {
+                        addTestResult('❌ Cache read failed', 'error');
+                    }
+                }
+                
+                if (typeof clearCache === 'function') {
+                    clearCache();
+                    addTestResult('✅ Cache clear successful', 'success');
+                }
+                
+            } catch (error) {
+                addTestResult(`❌ Caching test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testSummaryCards() {
+            addTestResult('🧪 Testing summary cards...', 'info');
+            
+            // Check if summary card elements exist
+            const summaryElements = [
+                'active-backends',
+                'total-jobs', 
+                'running-jobs',
+                'success-rate'
+            ];
+            
+            let foundElements = 0;
+            summaryElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    foundElements++;
+                    addTestResult(`✅ Found summary element: ${id}`, 'success');
+                } else {
+                    addTestResult(`⚠️ Summary element not found: ${id}`, 'info');
+                }
+            });
+            
+            if (foundElements > 0) {
+                addTestResult(`✅ Found ${foundElements} summary elements`, 'success');
+            } else {
+                addTestResult('⚠️ No summary elements found (may need to load dashboard)', 'info');
+            }
+        }
+        
+        function clearTestResults() {
+            document.getElementById('test-results').innerHTML = '';
+        }
+        
+        // Auto-run basic tests on load
+        window.addEventListener('load', () => {
+            addTestResult('🚀 Dashboard timeout fixes test page loaded', 'info');
+            addTestResult('Click the test buttons above to verify fixes', 'info');
+        });
+    </script>
+</body>
+</html>

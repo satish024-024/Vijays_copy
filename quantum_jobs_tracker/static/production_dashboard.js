@@ -1,6 +1,6 @@
-// Quantum Spark - Amaravathi Quantum Hackathon Dashboard
-// Advanced Interactive Dashboard with AI Integration
-class HackathonDashboard {
+// Quantum Nexus - Production Dashboard
+// Advanced Interactive Dashboard with Real-time Quantum Data
+class ProductionDashboard {
     constructor() {
         // Detect dashboard theme from URL or body class
         this.detectDashboardTheme();
@@ -115,6 +115,9 @@ class HackathonDashboard {
 
         // Update loading status
         this.updateLoadingStatus('Initializing dashboard components...');
+        
+        // Initialize additional methods for production dashboard
+        this.initProductionMethods();
 
         // Add quick start button handler - INSTANT
         const quickStartBtn = document.getElementById('quick-start-btn');
@@ -8202,6 +8205,172 @@ class HackathonDashboard {
         
         console.log('✅ Results widget updated');
     }
+
+    // Production Dashboard specific methods
+    initProductionMethods() {
+        console.log('🔧 Initializing production dashboard methods...');
+    }
+
+    quickStart() {
+        console.log('⚡ Quick start activated - skipping slow API calls');
+        this.quickStartMode = true;
+        this.hideLoadingScreen();
+        this.initQuickStart();
+    }
+
+    refreshAll() {
+        console.log('🔄 Refreshing all widgets...');
+        this.showNotification('🔄 Refreshing all widgets...', 'info');
+        this.updateAllWidgets();
+    }
+
+    toggleTheme() {
+        console.log('🎨 Toggling theme...');
+        document.body.classList.toggle('dark-theme');
+        const isDark = document.body.classList.contains('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        this.showNotification(`Theme switched to ${isDark ? 'dark' : 'light'} mode`, 'info');
+    }
+
+    sendChatMessage(message) {
+        console.log('💬 Sending chat message:', message);
+        if (!message.trim()) return;
+        
+        // Add user message to chat
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.style.cssText = 'margin-bottom: var(--space-md); display: flex; align-items: flex-start; gap: var(--space-sm); justify-content: flex-end;';
+            userMessage.innerHTML = `
+                <div style="background: var(--glass-bg); color: var(--text-primary); padding: var(--space-md); border-radius: var(--radius-lg); max-width: 80%;">
+                    <i class="fas fa-user" style="margin-right: var(--space-xs);"></i>
+                    ${message}
+                </div>
+            `;
+            chatMessages.appendChild(userMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Process with AI (simplified response for now)
+        setTimeout(() => {
+            this.addAIResponse(`I understand you're asking about: "${message}". This is a quantum computing concept that involves...`);
+        }, 1000);
+    }
+
+    addAIResponse(response) {
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'message ai-message';
+            aiMessage.style.cssText = 'margin-bottom: var(--space-md); display: flex; align-items: flex-start; gap: var(--space-sm);';
+            aiMessage.innerHTML = `
+                <div style="background: var(--quantum-gradient); color: white; padding: var(--space-md); border-radius: var(--radius-lg); max-width: 80%;">
+                    <i class="fas fa-robot" style="margin-right: var(--space-xs);"></i>
+                    ${response}
+                </div>
+            `;
+            chatMessages.appendChild(aiMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+    handleWidgetAction(widgetType, action, widget) {
+        console.log(`🔧 Widget action: ${action} on ${widgetType}`);
+        
+        switch (action) {
+            case 'refresh':
+                this.refreshWidget(widgetType);
+                break;
+            case 'popup':
+                this.openWidgetPopup(widgetType, widget);
+                break;
+            case 'remove':
+                this.removeWidget(widget);
+                break;
+            default:
+                console.log(`Unknown action: ${action}`);
+        }
+    }
+
+    refreshWidget(widgetType) {
+        console.log(`🔄 Refreshing ${widgetType} widget...`);
+        this.showNotification(`Refreshing ${widgetType}...`, 'info');
+        
+        // Hide content and show loading
+        const widget = document.querySelector(`[data-widget="${widgetType}"]`);
+        if (widget) {
+            const loading = widget.querySelector('.loading');
+            const content = widget.querySelector(`#${widgetType}-content`);
+            
+            if (loading) loading.style.display = 'flex';
+            if (content) content.style.display = 'none';
+        }
+        
+        // Update the specific widget
+        switch (widgetType) {
+            case 'backends':
+                this.updateBackendsWidget();
+                break;
+            case 'jobs':
+                this.updateJobsWidget();
+                break;
+            case 'bloch-sphere':
+                this.updateBlochSphereWidget();
+                break;
+            case 'circuit':
+                this.updateCircuitWidget();
+                break;
+            case 'entanglement':
+                this.updateEntanglementWidget();
+                break;
+            case 'results':
+                this.updateResultsWidget();
+                break;
+            case 'quantum-state':
+                this.updateQuantumStateWidget();
+                break;
+            case 'performance':
+                this.updatePerformanceWidget();
+                break;
+            case 'ai-assistant':
+                this.updateAIAssistantWidget();
+                break;
+            case 'historical-data':
+                this.updateHistoricalDataWidget();
+                break;
+        }
+    }
+
+    openWidgetPopup(widgetType, widget) {
+        console.log(`🔍 Opening popup for ${widgetType}`);
+        const popupOverlay = document.getElementById('popup-overlay');
+        const popupTitle = document.getElementById('popup-title');
+        const popupContent = document.getElementById('popup-content');
+        
+        if (popupOverlay && popupTitle && popupContent) {
+            popupTitle.textContent = `${widgetType.charAt(0).toUpperCase() + widgetType.slice(1)} - Full View`;
+            
+            // Copy widget content to popup
+            const widgetContent = widget.querySelector('.widget-content');
+            if (widgetContent) {
+                popupContent.innerHTML = widgetContent.innerHTML;
+            }
+            
+            popupOverlay.classList.add('active');
+        }
+    }
+
+    removeWidget(widget) {
+        console.log('🗑️ Removing widget...');
+        if (confirm('Are you sure you want to remove this widget?')) {
+            widget.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                widget.remove();
+                this.showNotification('Widget removed', 'info');
+            }, 300);
+        }
+    }
 }
 
 // Global functions for API modal management
@@ -8220,7 +8389,7 @@ window.addApiInstance = function() {
 // Initialize dashboard instance globally
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.dashboardInstance) {
-    window.dashboardInstance = new HackathonDashboard();
+    window.dashboardInstance = new ProductionDashboard();
     }
 });
 

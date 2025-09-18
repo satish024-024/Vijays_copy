@@ -702,9 +702,11 @@ class QuantumDashboard {
     }
 
     startRealTimeUpdates() {
-        this.updateInterval = setInterval(() => {
-            this.updateAllWidgets();
-        }, 30000);
+        // Disabled to prevent continuous refreshing
+        console.log('🚫 Real-time updates disabled to prevent flickering');
+        // this.updateInterval = setInterval(() => {
+        //     this.updateAllWidgets();
+        // }, 30000);
     }
 
     stopRealTimeUpdates() {

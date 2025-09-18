@@ -1216,4 +1216,6 @@ var MapControls = function ( object, domElement ) {
 MapControls.prototype = Object.create( EventDispatcher.prototype );
 MapControls.prototype.constructor = MapControls;
 
-export { OrbitControls, MapControls };
+// Make OrbitControls globally available
+window.OrbitControls = OrbitControls;
+window.MapControls = MapControls;
