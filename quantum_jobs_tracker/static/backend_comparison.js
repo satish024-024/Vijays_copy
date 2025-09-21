@@ -532,6 +532,12 @@ class BackendComparisonSystem {
         const insights = [];
         const backends = Array.from(this.backends.values());
         
+        // Check if we have any backends
+        if (backends.length === 0) {
+            console.log('No backends available for analysis');
+            return insights;
+        }
+        
         // Find best performing backend
         const bestBackend = backends.reduce((best, current) => 
             current.performanceScore > best.performanceScore ? current : best

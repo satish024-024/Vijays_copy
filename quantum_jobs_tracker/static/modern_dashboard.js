@@ -17,12 +17,14 @@ class ModernDashboard extends HackathonDashboard {
         try {
             console.log('🔄 Modern Dashboard: Fetching comprehensive IBM Quantum data with enhanced analytics...');
 
-            // Fetch all enhanced APIs concurrently (same as hackathon but with modern logging)
+            // Call parent's fetchDashboardData first to get basic data
+            await super.fetchDashboardData();
+            
+            // Debug: Check what data we have after parent fetch
+            console.log('🔍 Modern Dashboard: After parent fetch - backends:', this.state.backends?.length || 0, 'jobs:', this.state.jobs?.length || 0);
+
+            // Fetch additional modern-specific APIs with proper error handling
             const [
-                dashboardResponse,
-                backendsResponse,
-                jobsResponse,
-                jobResultsResponse,
                 performanceResponse,
                 realtimeResponse,
                 circuitDetailsResponse,
@@ -30,73 +32,48 @@ class ModernDashboard extends HackathonDashboard {
                 calibrationResponse,
                 dashboardMetricsResponse
             ] = await Promise.allSettled([
-                fetch('/api/dashboard_state'),
-                fetch('/api/backends'),
-                fetch('/api/jobs'),
-                fetch('/api/job_results'),
-                fetch('/api/performance_metrics'),
-                fetch('/api/realtime_monitoring'),
-                fetch('/api/circuit_details'),
-                fetch('/api/historical_data'),
-                fetch('/api/calibration_data'),
-                fetch('/api/dashboard_metrics')
+                fetch('/api/performance_metrics').catch(e => ({ ok: false, error: e })),
+                fetch('/api/realtime_monitoring').catch(e => ({ ok: false, error: e })),
+                fetch('/api/circuit_details').catch(e => ({ ok: false, error: e })),
+                fetch('/api/historical_data').catch(e => ({ ok: false, error: e })),
+                fetch('/api/calibration_data').catch(e => ({ ok: false, error: e })),
+                fetch('/api/dashboard_metrics').catch(e => ({ ok: false, error: e }))
             ]);
 
-            // Process responses (same logic as hackathon)
-            const dashboardData = dashboardResponse.status === 'fulfilled' && dashboardResponse.value.ok
-                ? await dashboardResponse.value.json()
-                : {};
-
-            const backendsData = backendsResponse.status === 'fulfilled' && backendsResponse.value.ok
-                ? await backendsResponse.value.json()
-                : [];
-
-            const jobsData = jobsResponse.status === 'fulfilled' && jobsResponse.value.ok
-                ? await jobsResponse.value.json()
-                : [];
-
-            const jobResultsData = jobResultsResponse.status === 'fulfilled' && jobResultsResponse.value.ok
-                ? await jobResultsResponse.value.json()
-                : [];
-
+            // Process additional responses with better error handling
             const performanceData = performanceResponse.status === 'fulfilled' && performanceResponse.value.ok
                 ? await performanceResponse.value.json()
-                : {};
+                : { real_data: false, error: 'Failed to fetch performance data' };
 
             const realtimeData = realtimeResponse.status === 'fulfilled' && realtimeResponse.value.ok
                 ? await realtimeResponse.value.json()
-                : {};
+                : { real_data: false, error: 'Failed to fetch realtime data' };
 
             const circuitDetailsData = circuitDetailsResponse.status === 'fulfilled' && circuitDetailsResponse.value.ok
                 ? await circuitDetailsResponse.value.json()
-                : [];
+                : { circuit_details: [], real_data: false };
 
             const historicalData = historicalResponse.status === 'fulfilled' && historicalResponse.value.ok
                 ? await historicalResponse.value.json()
-                : {};
+                : { real_data: false, error: 'Failed to fetch historical data' };
 
             const calibrationData = calibrationResponse.status === 'fulfilled' && calibrationResponse.value.ok
                 ? await calibrationResponse.value.json()
-                : {};
+                : { real_data: false, error: 'Failed to fetch calibration data' };
 
             const dashboardMetricsData = dashboardMetricsResponse.status === 'fulfilled' && dashboardMetricsResponse.value.ok
                 ? await dashboardMetricsResponse.value.json()
-                : {};
+                : { real_data: false, error: 'Failed to fetch dashboard metrics' };
 
-            // Update state with comprehensive data
+            // Update state with additional modern data
             this.state = {
                 ...this.state,
-                backends: Array.isArray(backendsData) ? backendsData : (backendsData.backends || []),
-                jobs: Array.isArray(jobsData) ? jobsData : (jobsData.jobs || []),
-                jobResults: Array.isArray(jobResultsData) ? jobResultsData : [],
                 performance: performanceData,
                 realtime: realtimeData,
-                circuitDetails: Array.isArray(circuitDetailsData) ? circuitDetailsData : [],
+                circuitDetails: circuitDetailsData.circuit_details || [],
                 historical: historicalData,
                 calibration: calibrationData,
-                dashboardMetrics: dashboardMetricsData,
-                metrics: dashboardData.metrics || {},
-                isConnected: dashboardData.connection_status?.is_connected || false
+                dashboardMetrics: dashboardMetricsData
             };
 
             // Modern-specific logging
@@ -112,17 +89,19 @@ class ModernDashboard extends HackathonDashboard {
                 connected: this.state.isConnected
             });
 
-            // Update connection status
-            this.updateConnectionStatus(dashboardData.connection_status?.is_connected || false);
-
             // Update enhanced metrics with modern styling
             this.updateModernMetrics();
 
             // Enable modern features
             this.enableModernFeatures();
 
+            // Force update all widgets to stop loading states
+            this.updateAllWidgets();
+
         } catch (error) {
             console.error('❌ Modern Dashboard: Error fetching comprehensive data:', error);
+            // Still try to update widgets even if some data failed
+            this.updateAllWidgets();
             throw new Error('Failed to fetch comprehensive IBM Quantum data: ' + error.message);
         }
     }
@@ -302,6 +281,367 @@ class ModernDashboard extends HackathonDashboard {
         this.startAutoRefresh();
     }
 
+    // Override loadInitialData to ensure proper initialization
+    async loadInitialData() {
+        try {
+            console.log('🎨 Modern Dashboard: Starting initialization with enhanced features...');
+            
+            // Call parent's loadInitialData to handle basic initialization and loading screen
+            await super.loadInitialData();
+            
+            // Additional modern-specific initialization
+            this.enableModernFeatures();
+            
+            // Force load data if not already loaded
+            await this.forceLoadData();
+            
+            // Force update all widgets to stop loading states
+            this.updateAllWidgets();
+            
+            // Ensure loading screen is hidden
+            this.hideLoadingScreen();
+            this.hideAllLoadingStates();
+            
+            console.log('✅ Modern Dashboard: Initialization completed with enhanced features');
+        } catch (error) {
+            console.error('❌ Modern Dashboard: Error during initialization:', error);
+            // Ensure loading screen is hidden even on error
+            this.hideLoadingScreen();
+            this.hideAllLoadingStates();
+            // Still try to update widgets
+            this.updateAllWidgets();
+        }
+    }
+
+    // Override updateAllWidgets to ensure loading states are properly handled
+    async updateAllWidgets() {
+        console.log('🔄 Modern Dashboard: Updating all widgets with real data...');
+        
+        try {
+            // Call parent's updateAllWidgets first
+            await super.updateAllWidgets();
+            
+            // Update modern-specific widgets
+            this.updateModernWidgets();
+            
+            // Hide all loading states
+            this.hideAllLoadingStates();
+            
+            console.log('✅ Modern Dashboard: All widgets updated successfully');
+        } catch (error) {
+            console.error('❌ Modern Dashboard: Error updating widgets:', error);
+            // Still try to hide loading states
+            this.hideAllLoadingStates();
+        }
+    }
+
+    updateModernWidgets() {
+        // Update backends widget
+        this.updateBackendsWidget();
+        
+        // Update jobs widget
+        this.updateJobsWidget();
+        
+        // Update performance widget
+        this.updatePerformanceWidget();
+        
+        // Update other modern widgets
+        this.updateEntanglementWidget();
+        this.updateResultsWidget();
+        this.updateQuantumStateWidget();
+        this.updateAIChatWidget();
+    }
+
+    updateBackendsWidget() {
+        const loadingElement = document.getElementById('backends-loading');
+        const contentElement = document.getElementById('backends-content');
+        
+        if (loadingElement && contentElement) {
+            loadingElement.style.display = 'none';
+            contentElement.style.display = 'block';
+            
+            // Update content with real backend data
+            const backends = this.state.backends || [];
+            console.log('🔄 Modern Dashboard: Updating backends widget with', backends.length, 'backends');
+            
+            if (backends.length > 0) {
+                contentElement.innerHTML = `
+                    <div class="widget-content">
+                        <h4>Available Backends (${backends.length})</h4>
+                        <div class="backend-list">
+                            ${backends.map(backend => `
+                                <div class="backend-item">
+                                    <div class="backend-name">${backend.name || 'Unknown'}</div>
+                                    <div class="backend-status ${backend.operational ? 'operational' : 'offline'}">
+                                        ${backend.operational ? 'Operational' : 'Offline'}
+                                    </div>
+                                    <div class="backend-qubits">${backend.num_qubits || 0} qubits</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Show message if no backends available
+                contentElement.innerHTML = `
+                    <div class="widget-content">
+                        <h4>Available Backends (0)</h4>
+                        <div class="no-data-message">
+                            <p>No backends available. Please check your IBM Quantum connection.</p>
+                            <button class="btn btn-primary" onclick="window.dashboard.refreshData()">Refresh</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    updateJobsWidget() {
+        const loadingElement = document.getElementById('jobs-loading');
+        const contentElement = document.getElementById('jobs-content');
+        
+        if (loadingElement && contentElement) {
+            loadingElement.style.display = 'none';
+            contentElement.style.display = 'block';
+            
+            // Update content with real job data
+            const jobs = this.state.jobs || [];
+            const runningJobs = jobs.filter(j => j.status === 'RUNNING');
+            const doneJobs = jobs.filter(j => j.status === 'DONE');
+            
+            console.log('🔄 Modern Dashboard: Updating jobs widget with', jobs.length, 'jobs');
+            
+            if (jobs.length > 0) {
+                contentElement.innerHTML = `
+                    <div class="widget-content">
+                        <h4>Job Status (${jobs.length} total)</h4>
+                        <div class="job-stats">
+                            <div class="job-stat">
+                                <span class="stat-label">Running:</span>
+                                <span class="stat-value">${runningJobs.length}</span>
+                            </div>
+                            <div class="job-stat">
+                                <span class="stat-label">Completed:</span>
+                                <span class="stat-value">${doneJobs.length}</span>
+                            </div>
+                        </div>
+                        <div class="recent-jobs">
+                            ${jobs.slice(0, 5).map(job => `
+                                <div class="job-item">
+                                    <div class="job-id">${job.id || 'Unknown'}</div>
+                                    <div class="job-status ${job.status?.toLowerCase()}">${job.status || 'Unknown'}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Show message if no jobs available
+                contentElement.innerHTML = `
+                    <div class="widget-content">
+                        <h4>Job Status (0 total)</h4>
+                        <div class="no-data-message">
+                            <p>No jobs found. Submit a quantum job to see results here.</p>
+                            <button class="btn btn-primary" onclick="window.dashboard.refreshData()">Refresh</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    updatePerformanceWidget() {
+        const loadingElement = document.getElementById('performance-loading');
+        const contentElement = document.getElementById('performance-content');
+        
+        if (loadingElement && contentElement) {
+            loadingElement.style.display = 'none';
+            contentElement.style.display = 'block';
+            
+            // Update content with real performance data
+            const performance = this.state.performance || {};
+            const successRate = performance.success_rate || 0;
+            const avgExecutionTime = performance.avg_execution_time || 0;
+            
+            contentElement.innerHTML = `
+                <div class="widget-content">
+                    <h4>Performance Metrics</h4>
+                    <div class="performance-stats">
+                        <div class="perf-stat">
+                            <span class="stat-label">Success Rate:</span>
+                            <span class="stat-value">${successRate}%</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="stat-label">Avg Execution:</span>
+                            <span class="stat-value">${avgExecutionTime}s</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="stat-label">Total Jobs:</span>
+                            <span class="stat-value">${performance.quantum_volume || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    updateEntanglementWidget() {
+        const loadingElement = document.getElementById('entanglement-loading');
+        const contentElement = document.getElementById('entanglement-content');
+        
+        if (loadingElement && contentElement) {
+            loadingElement.style.display = 'none';
+            contentElement.style.display = 'block';
+            
+            contentElement.innerHTML = `
+                <div class="widget-content">
+                    <h4>Entanglement Analysis</h4>
+                    <div class="entanglement-info">
+                        <p>Quantum entanglement analysis tools are available for circuit analysis.</p>
+                        <div class="entanglement-controls">
+                            <button class="btn btn-primary">Analyze Circuit</button>
+                            <button class="btn btn-secondary">View Correlations</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    updateResultsWidget() {
+        const loadingElement = document.getElementById('results-loading');
+        const contentElement = document.getElementById('results-content');
+        
+        if (loadingElement && contentElement) {
+            loadingElement.style.display = 'none';
+            contentElement.style.display = 'block';
+            
+            const jobResults = this.state.jobResults || [];
+            
+            contentElement.innerHTML = `
+                <div class="widget-content">
+                    <h4>Measurement Results</h4>
+                    <div class="results-info">
+                        <p>${jobResults.length} measurement results available</p>
+                        <div class="results-controls">
+                            <button class="btn btn-primary">View Results</button>
+                            <button class="btn btn-secondary">Export Data</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    updateQuantumStateWidget() {
+        const loadingElement = document.getElementById('quantum-state-loading');
+        const contentElement = document.getElementById('quantum-state-content');
+        
+        if (loadingElement && contentElement) {
+            loadingElement.style.display = 'none';
+            contentElement.style.display = 'block';
+            
+            contentElement.innerHTML = `
+                <div class="widget-content">
+                    <h4>Quantum State</h4>
+                    <div class="quantum-state-info">
+                        <p>Current quantum state visualization</p>
+                        <div class="state-controls">
+                            <button class="btn btn-primary">Reset to |0⟩</button>
+                            <button class="btn btn-secondary">Apply Gate</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    updateAIChatWidget() {
+        const loadingElement = document.getElementById('ai-chat-loading');
+        const contentElement = document.getElementById('ai-chat-content');
+        
+        if (loadingElement && contentElement) {
+            loadingElement.style.display = 'none';
+            contentElement.style.display = 'block';
+        }
+    }
+
+    hideAllLoadingStates() {
+        // Hide all loading states
+        const loadingElements = [
+            'backends-loading', 'jobs-loading', 'bloch-loading', 'circuit-loading',
+            'entanglement-loading', 'results-loading', 'quantum-state-loading',
+            'performance-loading', 'ai-chat-loading'
+        ];
+        
+        loadingElements.forEach(id => {
+            const loadingElement = document.getElementById(id);
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        });
+        
+        // Show all content elements
+        const contentElements = [
+            'backends-content', 'jobs-content', 'bloch-content', 'circuit-content',
+            'entanglement-content', 'results-content', 'quantum-state-content',
+            'performance-content', 'ai-chat-content'
+        ];
+        
+        contentElements.forEach(id => {
+            const contentElement = document.getElementById(id);
+            if (contentElement) {
+                contentElement.style.display = 'block';
+            }
+        });
+    }
+
+    // Add refresh method for manual data refresh
+    async refreshData() {
+        console.log('🔄 Modern Dashboard: Manual data refresh requested...');
+        try {
+            // Force refresh all data
+            await this.fetchDashboardData();
+            this.updateAllWidgets();
+            console.log('✅ Modern Dashboard: Data refresh completed');
+        } catch (error) {
+            console.error('❌ Modern Dashboard: Error during data refresh:', error);
+        }
+    }
+
+    // Force load data if not already loaded
+    async forceLoadData() {
+        console.log('🔄 Modern Dashboard: Force loading data...');
+        try {
+            // Check if we have data
+            if (!this.state.backends || this.state.backends.length === 0) {
+                console.log('📡 No backend data found, fetching...');
+                const response = await fetch('/api/backends');
+                if (response.ok) {
+                    const data = await response.json();
+                    this.state.backends = data.backends || data;
+                    console.log('✅ Loaded backends:', this.state.backends.length);
+                }
+            }
+
+            if (!this.state.jobs || this.state.jobs.length === 0) {
+                console.log('📡 No job data found, fetching...');
+                const response = await fetch('/api/jobs');
+                if (response.ok) {
+                    const data = await response.json();
+                    this.state.jobs = data.jobs || data;
+                    console.log('✅ Loaded jobs:', this.state.jobs.length);
+                }
+            }
+
+            // Update widgets with loaded data
+            this.updateAllWidgets();
+            console.log('✅ Modern Dashboard: Force data load completed');
+        } catch (error) {
+            console.error('❌ Modern Dashboard: Error during force data load:', error);
+        }
+    }
+
     // Override AI response for modern context
     async simulateAIResponse(query) {
         // Enhanced AI responses for modern dashboard
@@ -325,4 +665,13 @@ class ModernDashboard extends HackathonDashboard {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎨 Initializing Modern Dashboard with enhanced IBM Quantum integration...');
     window.dashboard = new ModernDashboard();
+    
+    // Ensure loading screen is hidden after a timeout
+    setTimeout(() => {
+        console.log('🔄 Modern Dashboard: Timeout - forcing loading screen to hide...');
+        if (window.dashboard) {
+            window.dashboard.hideLoadingScreen();
+            window.dashboard.hideAllLoadingStates();
+        }
+    }, 10000); // 10 second timeout
 });

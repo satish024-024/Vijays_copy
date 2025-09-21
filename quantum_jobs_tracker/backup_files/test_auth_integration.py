@@ -80,7 +80,7 @@ def main():
     print("\n📋 Next steps:")
     print("1. Install requirements: pip install -r requirements.txt")
     print("2. Run the app: python real_quantum_app.py")
-    print("3. Visit http://localhost:5000 to see new authentication")
+    print("3. Visit http://localhost:10000 to see new authentication")
     print("4. If issues occur, check console for detailed error messages")
 
 if __name__ == '__main__':

@@ -1522,11 +1522,16 @@
     <!-- Math.js for quantum calculations -->
     <script src="https://unpkg.com/mathjs@11.11.0/lib/browser/math.min.js"></script>
     
-    <!-- Blochy Integration -->
-    <script src="../blochy-source/quantum.js"></script>
-    <script src="../blochy-source/plot.js"></script>
-    <script src="../blochy-source/ui.js"></script>
-    <script src="../blochy-source/helper.js"></script>
+    <!-- Blochy Integration - Dependencies -->
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/libs/three/three.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/libs/three/jsm/controls/OrbitControls.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/libs/three/jsm/renderers/CSS2DRenderer.js') }}"></script>
+    
+    <!-- Blochy Integration - Core -->
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/quantum/bloch_sphere.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/quantum/bloch_sphere_state.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/quantum/quantum_gate.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/init.js') }}"></script>
     
     <!-- 3D Circuit -->
     <script src="static/3d_quantum_circuit.js"></script>

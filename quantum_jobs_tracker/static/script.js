@@ -60,16 +60,18 @@ async function fetchData() {
         const dashboardResponse = await fetch('/api/dashboard_state');
         const dashboardData = await dashboardResponse.json();
         
-        // Update state with fetched data
+        // Update state with fetched data - handle new API structure
         state.backends = backendsData.backends || backendsData;
         state.jobs = jobsData.jobs || jobsData;
         state.dashboardState = dashboardData;
         state.lastUpdate = new Date();
         
-        // Check for connection status
+        // Check for connection status - handle both old and new formats
         const connectionStatus = backendsData.connection_status || 
                                 jobsData.connection_status || 
-                                dashboardData.connection_status;
+                                dashboardData.connection_status ||
+                                (dashboardData.connection_status && dashboardData.connection_status.status) ||
+                                'disconnected';
         
         // Update connection status indicator
         updateConnectionStatus(connectionStatus);
@@ -102,7 +104,13 @@ function updateConnectionStatus(status) {
     
     if (!indicator || !textSpan) return;
     
-    switch (status) {
+    // Handle both string status and object status
+    let statusValue = status;
+    if (typeof status === 'object' && status !== null) {
+        statusValue = status.status || status.is_connected ? 'connected' : 'disconnected';
+    }
+    
+    switch (statusValue) {
         case 'connected':
             textSpan.textContent = 'Connected to IBM Quantum';
             indicator.className = 'fas fa-circle status-indicator connected';
@@ -112,6 +120,11 @@ function updateConnectionStatus(status) {
             textSpan.textContent = 'Disconnected from IBM Quantum';
             indicator.className = 'fas fa-circle status-indicator disconnected';
             statusElement.className = 'connection-status disconnected';
+            break;
+        case 'demo_mode':
+            textSpan.textContent = 'Demo Mode - IBM Quantum Not Connected';
+            indicator.className = 'fas fa-flask status-indicator demo';
+            statusElement.className = 'connection-status demo';
             break;
         case 'error':
             textSpan.textContent = 'Connection Error';

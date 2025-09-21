@@ -10,7 +10,7 @@ import time
 
 def minimal_test():
     """Minimal test"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:10000"
     session = requests.Session()
     
     print("🚀 Minimal Test...")

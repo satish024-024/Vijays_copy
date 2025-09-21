@@ -9,7 +9,7 @@ import time
 
 def test_api_endpoints():
     """Test the API endpoints to ensure they work properly"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:10000"
     
     print("🧪 Testing Dashboard API Endpoints...")
     print("=" * 50)
@@ -64,7 +64,7 @@ def test_api_endpoints():
 
 def test_dashboard_page():
     """Test if the dashboard page loads"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:10000"
     
     print("\n🌐 Testing Dashboard Page...")
     try:
@@ -82,7 +82,7 @@ def test_dashboard_page():
 
 if __name__ == "__main__":
     print("🚀 Dashboard Connection Test")
-    print("Make sure the Flask server is running on localhost:5000")
+    print("Make sure the Flask server is running on localhost:10000")
     print()
     
     test_api_endpoints()

@@ -36,6 +36,148 @@ class CircuitBuilder {
         this.initializeQubits();
         this.updateGrid();
         this.setupEventListeners();
+        
+        // AI circuit integration
+        this.aiGeneratedCircuit = null;
+        this.setupAIIntegration();
+    }
+
+    setupAIIntegration() {
+        // Listen for AI circuit loading events
+        window.addEventListener('loadAICircuit', (event) => {
+            this.loadAICircuit(event.detail);
+        });
+        
+        // Check for pending AI circuit on initialization
+        if (window.dashboard && window.dashboard.state.pendingCircuit) {
+            this.loadAICircuit(window.dashboard.state.pendingCircuit);
+        }
+    }
+
+    loadAICircuit(circuit_3d) {
+        try {
+            console.log('🎨 Loading AI-generated circuit in 3D builder:', circuit_3d);
+            
+            this.aiGeneratedCircuit = circuit_3d;
+            
+            // Clear existing circuit
+            this.clearCircuit();
+            
+            // Set number of qubits
+            this.qubits = circuit_3d.qubits;
+            this.initializeQubits();
+            
+            // Add gates to circuit
+            circuit_3d.gates.forEach((gate, index) => {
+                this.addAIGateToCircuit(gate, index);
+            });
+            
+            // Update visualization
+            this.updateCircuitVisualization();
+            
+            console.log(`✅ Loaded AI circuit: ${circuit_3d.name} with ${circuit_3d.gates.length} gates`);
+            
+            // Show success notification
+            if (window.dashboard) {
+                window.dashboard.showNotification(`🎨 AI Circuit "${circuit_3d.name}" loaded!`, 'success', 3000);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading AI circuit:', error);
+            if (window.dashboard) {
+                window.dashboard.showNotification('❌ Error loading AI circuit', 'error', 3000);
+            }
+        }
+    }
+
+    addAIGateToCircuit(gate, depth) {
+        try {
+            const gateInstance = {
+                type: gate.type,
+                qubits: gate.qubits,
+                depth: depth,
+                params: gate.params || [],
+                aiGenerated: true
+            };
+            
+            // Add to circuit array
+            this.circuit.push(gateInstance);
+            
+            // Create 3D gate object
+            this.createGate3D(gateInstance);
+            
+            // Update circuit depth
+            this.circuitDepth = Math.max(this.circuitDepth, depth + 1);
+            
+        } catch (error) {
+            console.error('❌ Error adding AI gate to circuit:', error);
+        }
+    }
+
+    createGate3D(gateInstance) {
+        try {
+            const gateModel = this.gateModels.getGateModel(gateInstance.type);
+            if (!gateModel) {
+                console.warn(`⚠️ Gate model not found: ${gateInstance.type}`);
+                return;
+            }
+            
+            // Calculate position
+            const x = this.OFFSET_X + (gateInstance.depth * this.SPACING_X);
+            const y = gateInstance.qubits[0] * this.SPACING_Y;
+            
+            // Clone the gate model
+            const gateMesh = gateModel.clone();
+            gateMesh.position.set(x, y, 0);
+            gateMesh.userData = {
+                type: gateInstance.type,
+                qubits: gateInstance.qubits,
+                depth: gateInstance.depth,
+                aiGenerated: true
+            };
+            
+            // Add to scene
+            this.scene.add(gateMesh);
+            this.gateInstances.push(gateMesh);
+            
+            // Add special styling for AI-generated gates
+            if (gateInstance.aiGenerated) {
+                gateMesh.material = gateMesh.material.clone();
+                gateMesh.material.emissive = new THREE.Color(0x00ff88);
+                gateMesh.material.emissiveIntensity = 0.3;
+            }
+            
+        } catch (error) {
+            console.error('❌ Error creating 3D gate:', error);
+        }
+    }
+
+    clearCircuit() {
+        // Remove all gate instances from scene
+        this.gateInstances.forEach(gate => {
+            this.scene.remove(gate);
+        });
+        this.gateInstances = [];
+        
+        // Clear circuit array
+        this.circuit = [];
+        this.circuitDepth = 0;
+        
+        // Clear AI circuit
+        this.aiGeneratedCircuit = null;
+        
+        // Update visualization
+        this.updateCircuitVisualization();
+    }
+
+    updateCircuitVisualization() {
+        // Update grid based on circuit depth
+        this.updateGrid();
+        
+        // Update quantum simulator if available
+        if (this.quantumSimulator) {
+            this.quantumSimulator.updateCircuit(this.circuit);
+        }
     }
 
     createDragPreview(gateType) {

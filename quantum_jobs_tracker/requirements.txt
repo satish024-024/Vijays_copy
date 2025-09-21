@@ -23,6 +23,7 @@ gunicorn==22.0.0
 
 # Visualization
 plotly==5.19.0
+networkx==3.3
 
 # Offline functionality
 schedule==1.2.1

@@ -9,6 +9,55 @@ class EnhancedQuantumAI {
         this.widgetCapabilities = this.initializeWidgetCapabilities();
         this.conversationHistory = [];
         this.maxHistoryLength = 50;
+        this.geminiClient = null;
+        this.initializeGemini();
+        this.initializeDashboardIntegration();
+    }
+
+    initializeDashboardIntegration() {
+        // Ensure AI assistant works with all dashboard types
+        if (this.dashboard) {
+            // Set up theme-specific responses
+            this.dashboardTheme = this.dashboard.dashboardTheme || 'Hackathon';
+            
+            // Add AI assistant methods to dashboard if not present
+            if (!this.dashboard.aiAssistant) {
+                this.dashboard.aiAssistant = this;
+            }
+            
+            // Ensure widget interaction methods exist
+            if (!this.dashboard.openWidget) {
+                this.dashboard.openWidget = (widgetKey) => {
+                    console.log(`Opening ${widgetKey} widget...`);
+                    return `Opening ${widgetKey} widget`;
+                };
+            }
+            
+            if (!this.dashboard.refreshWidget) {
+                this.dashboard.refreshWidget = (widgetKey) => {
+                    console.log(`Refreshing ${widgetKey} widget...`);
+                    return `Refreshing ${widgetKey} widget`;
+                };
+            }
+            
+            console.log(`🤖 AI Assistant integrated with ${this.dashboardTheme} dashboard`);
+        }
+    }
+
+    initializeGemini() {
+        try {
+            // Initialize Google Gemini AI as fallback
+            if (typeof GoogleGenerativeAI !== 'undefined') {
+                // Use a demo API key for testing (in production, this should be from environment)
+                const API_KEY = 'demo_key'; // This will be replaced with real key
+                this.geminiClient = new GoogleGenerativeAI(API_KEY);
+                console.log('🤖 Google Gemini AI initialized as fallback');
+            } else {
+                console.log('⚠️ Google Gemini AI not available, using local responses only');
+            }
+        } catch (error) {
+            console.log('⚠️ Failed to initialize Gemini AI:', error);
+        }
     }
 
     initializeQuantumKnowledge() {
@@ -246,6 +295,18 @@ class EnhancedQuantumAI {
             return systemQuery;
         }
 
+        // Check for quantum circuit generation queries
+        const circuitQuery = this.checkCircuitGeneration(lowerQuery);
+        if (circuitQuery) {
+            return circuitQuery;
+        }
+
+        // Try Gemini AI as fallback for complex queries
+        const geminiResponse = await this.tryGeminiResponse(query);
+        if (geminiResponse) {
+            return geminiResponse;
+        }
+
         // Default response with comprehensive help
         return this.generateHelpfulResponse(lowerQuery);
     }
@@ -444,25 +505,358 @@ class EnhancedQuantumAI {
         return null;
     }
 
+    checkCircuitGeneration(query) {
+        const circuitKeywords = [
+            'generate', 'create', 'make', 'build', 'circuit', 'quantum circuit',
+            'random number', 'bell state', 'grover', 'teleport', 'deutsch',
+            'entangled', 'superposition', 'quantum algorithm'
+        ];
+        
+        const hasCircuitKeyword = circuitKeywords.some(keyword => query.includes(keyword));
+        
+        if (hasCircuitKeyword) {
+            return this.handleCircuitGeneration(query);
+        }
+        
+        return null;
+    }
+
+    async handleCircuitGeneration(query) {
+        try {
+            console.log('🤖 Processing quantum circuit generation request:', query);
+            
+            // Generate circuit using AI
+            const response = await fetch('/api/ai-generate-circuit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const circuit = data.circuit;
+                
+                // Create circuit generation response
+                let response = `🎯 **${circuit.name}**\n\n`;
+                response += `📝 **Description:** ${circuit.description}\n\n`;
+                response += `⚙️ **Specifications:**\n`;
+                response += `• Qubits: ${circuit.qubits}\n`;
+                response += `• Shots: ${circuit.shots}\n`;
+                response += `• Gates: ${circuit.gates}\n`;
+                response += `• Depth: ${circuit.depth}\n\n`;
+                response += `🚀 **Ready to submit to IBM Quantum!**\n\n`;
+                response += `Would you like me to submit this circuit to a quantum backend? I can run it on IBM Quantum and show you the results in the Measurement Results widget.`;
+                
+                // Store circuit data for potential submission
+                this.lastGeneratedCircuit = {
+                    type: circuit.type,
+                    params: {
+                        qubits: circuit.qubits,
+                        shots: circuit.shots
+                    }
+                };
+                
+                return {
+                    type: 'circuit_generation',
+                    content: response,
+                    circuit: circuit,
+                    actions: [
+                        {
+                            text: 'Submit to IBM Quantum',
+                            action: 'submit_circuit',
+                            circuit: circuit
+                        },
+                        {
+                            text: 'View in 3D Circuit Builder',
+                            action: 'view_3d_circuit',
+                            circuit: circuit
+                        },
+                        {
+                            text: 'View Circuit Details',
+                            action: 'view_circuit',
+                            circuit: circuit
+                        }
+                    ]
+                };
+            } else {
+                return `❌ **Circuit Generation Failed**\n\nError: ${data.error}\n\nPlease try rephrasing your request or ask for a specific quantum algorithm.`;
+            }
+            
+        } catch (error) {
+            console.error('❌ Circuit generation error:', error);
+            return `❌ **Circuit Generation Error**\n\nI encountered an error while generating the quantum circuit: ${error.message}\n\nPlease try again or ask for help with a specific quantum algorithm.`;
+        }
+    }
+
+    async submitCircuitToIBM(circuit, backend = 'ibm_brisbane') {
+        try {
+            console.log('🚀 Submitting circuit to IBM Quantum:', circuit);
+            
+            const response = await fetch('/api/ai-submit-circuit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: circuit.type,
+                    params: circuit.params,
+                    backend: backend
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update all relevant widgets with new data
+                if (this.dashboard) {
+                    // Update jobs widget
+                    if (this.dashboard.updateJobsWidget) {
+                        this.dashboard.updateJobsWidget();
+                    }
+                    
+                    // Update backends widget
+                    if (this.dashboard.updateBackendsWidget) {
+                        this.dashboard.updateBackendsWidget();
+                    }
+                    
+                    // Update performance widget
+                    if (this.dashboard.updatePerformanceWidget) {
+                        this.dashboard.updatePerformanceWidget();
+                    }
+                    
+                    // If demo mode, update results widget immediately
+                    if (data.demo_mode && data.results) {
+                        if (this.dashboard.updateResultsWidget) {
+                            this.dashboard.updateResultsWidget();
+                        }
+                        if (this.dashboard.updateQuantumStateWidget) {
+                            this.dashboard.updateQuantumStateWidget();
+                        }
+                        if (this.dashboard.updateEntanglementWidget) {
+                            this.dashboard.updateEntanglementWidget();
+                        }
+                    }
+                }
+                
+                let response = `✅ **Circuit Submitted Successfully!**\n\n`;
+                response += `🆔 **Job ID:** ${data.job_id}\n`;
+                response += `🖥️ **Backend:** ${backend}\n`;
+                response += `📊 **Status:** ${data.demo_mode ? 'Completed (Demo)' : 'Queued'}\n\n`;
+                
+                if (data.demo_mode) {
+                    response += `🎭 **Demo Mode**: This is a simulated execution with realistic results.\n`;
+                    response += `📈 **Results**: Check the Measurement Results widget for quantum measurements!\n`;
+                    response += `🔬 **Analysis**: View quantum state and entanglement analysis in their respective widgets.\n\n`;
+                    response += `💡 **To run on real IBM Quantum**: Add your IBM Quantum credentials in the settings.`;
+                } else {
+                    response += `The results will appear in the Measurement Results widget once the job completes. You can track the progress in the Quantum Jobs widget.`;
+                }
+                
+                return response;
+            } else {
+                return `❌ **Submission Failed**\n\nError: ${data.error}\n\nPlease check your IBM Quantum connection and try again.`;
+            }
+            
+        } catch (error) {
+            console.error('❌ Circuit submission error:', error);
+            return `❌ **Submission Error**\n\nI encountered an error while submitting the circuit: ${error.message}\n\nPlease try again or check your IBM Quantum connection.`;
+        }
+    }
+
+    async viewCircuitIn3D(circuit) {
+        try {
+            console.log('🎨 Loading circuit in 3D visualizer:', circuit);
+            
+            // Get 3D circuit data
+            const response = await fetch('/api/ai-circuit-3d', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: circuit.type,
+                    params: circuit.params
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const circuit_3d = data.circuit_3d;
+                
+                // Store circuit data for 3D visualization
+                if (this.dashboard && this.dashboard.loadCircuitIn3D) {
+                    this.dashboard.loadCircuitIn3D(circuit_3d);
+                }
+                
+                let response = `🎨 **Circuit Loaded in 3D Visualizer!**\n\n`;
+                response += `📊 **Circuit:** ${circuit_3d.name}\n`;
+                response += `🔧 **Gates:** ${circuit_3d.gates.length}\n`;
+                response += `📏 **Depth:** ${circuit_3d.depth}\n`;
+                response += `⚡ **Qubits:** ${circuit_3d.qubits}\n\n`;
+                response += `The circuit is now visible in the 3D Circuit Builder widget. You can interact with it, modify gates, and see the quantum state evolution in real-time!`;
+                
+                return response;
+            } else {
+                return `❌ **3D Loading Failed**\n\nError: ${data.error}\n\nPlease try again or check the 3D circuit visualizer.`;
+            }
+            
+        } catch (error) {
+            console.error('❌ 3D circuit loading error:', error);
+            return `❌ **3D Loading Error**\n\nI encountered an error while loading the circuit in 3D: ${error.message}\n\nPlease try again or check the 3D circuit visualizer.`;
+        }
+    }
+
+    async tryGeminiResponse(query) {
+        try {
+            if (!this.geminiClient) {
+                return null;
+            }
+
+            // Create a context-aware prompt for Gemini
+            const context = await this.getDashboardContext();
+            const prompt = `You are a Quantum AI Assistant for a quantum computing dashboard. 
+
+Context: ${JSON.stringify(context, null, 2)}
+
+User Query: "${query}"
+
+Please provide a helpful response. If the user is asking about quantum circuits, suggest specific circuits they can create like:
+- "Create a Bell state circuit"
+- "Generate a quantum random number generator"
+- "Make a Grover search algorithm"
+- "Build a quantum teleportation circuit"
+
+Always be encouraging and suggest actionable next steps.`;
+
+            const model = this.geminiClient.getGenerativeModel({ model: "gemini-pro" });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+
+            return `🤖 **AI Response:**\n\n${text}\n\n*Powered by Google Gemini AI*`;
+            
+        } catch (error) {
+            console.log('⚠️ Gemini AI fallback failed:', error);
+            return null;
+        }
+    }
+
+    async getDashboardContext() {
+        try {
+            const context = {
+                availableCircuits: [
+                    'Random Number Generator',
+                    'Bell State Preparation', 
+                    'Grover Search Algorithm',
+                    'Quantum Teleportation',
+                    'Deutsch-Jozsa Algorithm'
+                ],
+                dashboardWidgets: [
+                    'Backends Monitor',
+                    'Quantum Jobs Tracker',
+                    '3D Circuit Builder',
+                    'Measurement Results',
+                    'Performance Metrics'
+                ],
+                capabilities: [
+                    'Generate quantum circuits from natural language',
+                    'Submit circuits to IBM Quantum hardware',
+                    '3D circuit visualization',
+                    'Real-time quantum data monitoring',
+                    'Quantum algorithm explanations'
+                ]
+            };
+
+            return context;
+        } catch (error) {
+            console.error('Error getting dashboard context:', error);
+            return {};
+        }
+    }
+
+    getThemeSpecificInfo(theme) {
+        const themeInfo = {
+            'Hackathon': {
+                description: 'I specialize in educational quantum computing with interactive learning features.',
+                features: '🎓 **Educational Focus**: Perfect for learning quantum concepts with guided tutorials and step-by-step explanations.',
+                capabilities: ['Interactive quantum tutorials', 'Step-by-step algorithm explanations', 'Educational circuit examples', 'Learning progress tracking']
+            },
+            'Modern': {
+                description: 'I provide clean, predictive analytics with modern UI and advanced visualizations.',
+                features: '🎨 **Modern Interface**: Clean design with predictive analytics and advanced data visualization.',
+                capabilities: ['Predictive analytics', 'Advanced visualizations', 'Clean modern UI', 'Real-time data insights']
+            },
+            'Professional': {
+                description: 'I offer enterprise-grade monitoring and comprehensive business intelligence.',
+                features: '🏢 **Enterprise Features**: Professional monitoring, detailed reporting, and business intelligence.',
+                capabilities: ['Enterprise monitoring', 'Detailed reporting', 'Business intelligence', 'Professional analytics']
+            },
+            'Advanced': {
+                description: 'I provide technical scientific interface with deep quantum computing analysis.',
+                features: '🔬 **Scientific Interface**: Technical analysis with deep quantum computing insights and research tools.',
+                capabilities: ['Scientific analysis', 'Research tools', 'Technical insights', 'Advanced quantum metrics']
+            },
+            'Production': {
+                description: 'I focus on real-time production monitoring and operational excellence.',
+                features: '⚡ **Production Ready**: Real-time monitoring, operational insights, and production optimization.',
+                capabilities: ['Real-time monitoring', 'Operational insights', 'Production optimization', 'System reliability']
+            }
+        };
+
+        return themeInfo[theme] || themeInfo['Hackathon'];
+    }
+
     generateHelpfulResponse(query) {
         const theme = this.dashboard?.dashboardTheme || 'Quantum';
+        const themeInfo = this.getThemeSpecificInfo(theme);
 
         // Check for greetings
         if (query.includes('hello') || query.includes('hi') || query.includes('hey')) {
-            return `Hello! I'm your ${theme} Quantum AI Assistant. I have access to comprehensive IBM Quantum data, all dashboard widgets, and extensive quantum computing knowledge. How can I help you today?`;
+            return `Hello! I'm your ${theme} Quantum AI Assistant. ${themeInfo.description}
+
+🎯 **Quick Actions I can help with:**
+• **Generate Circuits**: "Create a Bell state circuit", "Make a random number generator"
+• **Run on Quantum Hardware**: "Submit this circuit to IBM Quantum"
+• **3D Visualization**: "Show this circuit in 3D"
+• **Quantum Algorithms**: "Explain Grover's algorithm", "What is quantum teleportation?"
+• **Dashboard Control**: "Show backends", "Refresh jobs", "Open circuit builder"
+
+${themeInfo.features}
+
+What would you like to explore?`;
         }
 
         // Check for help requests
         if (query.includes('help') || query.includes('what can you') || query.includes('commands')) {
             return `I can help you with:
 • 📊 **System Analysis**: Check backend status, performance metrics, queue positions
-• 🎯 **Widget Control**: Open, refresh, or interact with any dashboard widget
-• 🔬 **Quantum Knowledge**: Explain concepts, gates, algorithms, and hardware
-• 📈 **Data Analysis**: Access all IBM Quantum APIs and analyze results
-• 🤖 **AI Features**: Generate quantum code, solve problems, provide recommendations
-• 📋 **Project Info**: Learn about Quantum Jobs Tracker capabilities
+• 🎯 **Circuit Generation**: Create quantum circuits from natural language
+• 🚀 **Quantum Execution**: Submit circuits to IBM Quantum hardware
+• 🎨 **3D Visualization**: View circuits in interactive 3D builder
+• 📚 **Quantum Education**: Explain algorithms, gates, and concepts
 
-Try asking: "Show me backend performance", "Explain quantum entanglement", "What's the current queue status?", or "Open Bloch sphere widget".`;
+**Try these commands:**
+• "Create a Bell state circuit" → I'll generate and show it in 3D
+• "Make a random number generator" → I'll create a QRNG circuit
+• "Submit to IBM Quantum" → I'll run your circuit on real hardware
+• "Show backends" → I'll display available quantum computers
+• "Explain Grover's algorithm" → I'll teach you quantum search`;
         }
 
         // Check for general questions about capabilities
@@ -560,7 +954,9 @@ How can I assist you with quantum computing today?`;
     // Method to generate quantum code examples
     generateQuantumCode(request) {
         if (request.includes('bell') || request.includes('entanglement')) {
-            return `from qiskit import QuantumCircuit
+            return `Bell State Circuit (Qiskit):
+\`\`\`python
+from qiskit import QuantumCircuit
 
 # Create Bell state (entangled qubits)
 qc = QuantumCircuit(2, 2)
@@ -569,26 +965,27 @@ qc.cx(0, 1)    # Entangle qubits with CNOT gate
 qc.measure_all() # Measure both qubits
 
 print("Bell State Circuit:")
-print(qc.draw())`;
+print(qc.draw())
+\`\`\`
+
+This creates the maximally entangled Bell state |Φ+⟩ = (|00⟩ + |11⟩)/√2`;
         }
 
         if (request.includes('grover') || request.includes('search')) {
-            return `from qiskit import QuantumCircuit
-from qiskit.algorithms import Grover, AmplificationProblem
-from qiskit.utils import QuantumInstance
+            return `Grover's Search Algorithm (Qiskit):
+\`\`\`python
+from qiskit import QuantumCircuit
 
 # Grover's algorithm for searching marked items
-def grover_search(search_value, search_space):
-    # This is a simplified example
-    # In practice, you'd implement the oracle and diffuser
+def grover_search():
     qc = QuantumCircuit(4)  # 2^4 = 16 possible values
-
+    
     # Initialize superposition
     qc.h(range(4))
-
+    
     # Oracle (marks the search value)
     # This would be customized based on the search problem
-
+    
     # Diffuser (amplitude amplification)
     qc.h(range(4))
     qc.x(range(4))
@@ -597,44 +994,49 @@ def grover_search(search_value, search_space):
     qc.h(3)
     qc.x(range(4))
     qc.h(range(4))
+    
+    return qc
+\`\`\`
 
-    return qc`;
+This provides quadratic speedup for searching unsorted databases`;
         }
 
         if (request.includes('teleportation')) {
-            return `from qiskit import QuantumCircuit
+            return `Quantum Teleportation Protocol (Qiskit):
+\`\`\`python
+from qiskit import QuantumCircuit
 
 # Quantum Teleportation Protocol
 def quantum_teleportation():
     qc = QuantumCircuit(3, 3)
-
+    
     # Step 1: Create entangled pair (Bell state)
     qc.h(1)
     qc.cx(1, 2)
-
-    # Step 2: Prepare qubit to teleport (arbitrary state)
+    
+    # Step 2: Prepare qubit to teleport
     qc.h(0)  # Example: put qubit 0 in superposition
-
+    
     # Step 3: Bell measurement on qubits 0 and 1
     qc.cx(0, 1)
     qc.h(0)
     qc.measure([0, 1], [0, 1])
-
+    
     # Step 4: Classical communication and conditional operations
     qc.x(2).c_if(1, 1)  # Apply X if classical bit 1 is 1
     qc.z(2).c_if(0, 1)  # Apply Z if classical bit 0 is 1
-
+    
     qc.measure(2, 2)  # Measure teleported qubit
-
+    
     return qc
+\`\`\`
 
-print("Quantum Teleportation Circuit:")
-print(quantum_teleportation().draw())`;
+This teleports quantum state from qubit 0 to qubit 2`;
         }
 
         return `I can generate quantum code examples! Try asking for:
 • "Generate Bell state code"
-• "Show Grover search algorithm"
+• "Show Grover search algorithm"  
 • "Create quantum teleportation circuit"
 • "Generate VQE algorithm code"`;
     }

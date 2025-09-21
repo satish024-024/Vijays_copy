@@ -14,5 +14,5 @@ IBM_QUANTUM_CRN = "your_crn_here"
 
 # Application settings
 DEBUG = True
-PORT = 5000
+PORT = 10000
 HOST = "0.0.0.0"

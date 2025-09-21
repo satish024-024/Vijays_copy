@@ -17,7 +17,7 @@ def test_production_dashboard():
     """Test the production dashboard functionality"""
     print("🧪 Testing Production Dashboard...")
     
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:10000"
     
     # Test 1: Check if production dashboard route exists
     print("\n1. Testing production dashboard route...")
@@ -72,7 +72,7 @@ def test_production_dashboard():
     print("\n🎯 Production Dashboard Test Complete!")
     print("\nTo access the production dashboard:")
     print("1. Start the server: python real_quantum_app.py")
-    print("2. Open browser: http://localhost:5000/production-dashboard")
+    print("2. Open browser: http://localhost:10000/production-dashboard")
     print("3. Login with your credentials")
     print("4. Enjoy the new gray-themed production dashboard!")
 

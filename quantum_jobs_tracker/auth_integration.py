@@ -31,7 +31,7 @@ class QuantumAuthManager:
         self.oauth_handler = IBMQuantumOAuth(
             client_id=os.getenv('IBM_QUANTUM_CLIENT_ID'),
             client_secret=os.getenv('IBM_QUANTUM_CLIENT_SECRET'),
-            redirect_uri=os.getenv('IBM_QUANTUM_REDIRECT_URI', f'http://localhost:{app.config.get("PORT", 5000)}/oauth/callback')
+            redirect_uri=os.getenv('IBM_QUANTUM_REDIRECT_URI', f'http://localhost:{app.config.get("PORT", 10000)}/oauth/callback')
         )
 
         # Initialize IBM Cloud IAM handler
@@ -252,7 +252,7 @@ def setup_environment_variables():
     # OAuth configuration
     env_vars['IBM_QUANTUM_CLIENT_ID'] = os.getenv('IBM_QUANTUM_CLIENT_ID', 'your_oauth_client_id')
     env_vars['IBM_QUANTUM_CLIENT_SECRET'] = os.getenv('IBM_QUANTUM_CLIENT_SECRET', 'your_oauth_client_secret')
-    env_vars['IBM_QUANTUM_REDIRECT_URI'] = os.getenv('IBM_QUANTUM_REDIRECT_URI', 'http://localhost:5000/oauth/callback')
+    env_vars['IBM_QUANTUM_REDIRECT_URI'] = os.getenv('IBM_QUANTUM_REDIRECT_URI', 'http://localhost:10000/oauth/callback')
 
     # IBM Cloud configuration
     env_vars['IBM_CLOUD_API_KEY'] = os.getenv('IBM_CLOUD_API_KEY', 'your_ibm_cloud_api_key')
@@ -278,6 +278,6 @@ if __name__ == '__main__':
             print(f"  {key}: {value}")
 
     print("\nStarting Flask app with authentication...")
-    print("Visit http://localhost:5000/auth to choose authentication method")
+    print("Visit http://localhost:10000/auth to choose authentication method")
 
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=10000)

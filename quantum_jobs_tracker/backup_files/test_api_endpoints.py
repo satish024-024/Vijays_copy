@@ -10,7 +10,7 @@ import time
 
 def test_api_endpoints():
     """Test all API endpoints"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:10000"
     
     print("🔍 Testing API Endpoints...")
     

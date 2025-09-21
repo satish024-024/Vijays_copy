@@ -373,14 +373,35 @@ class ProductionDashboard {
     }
 
     init() {
-        this.setupEventListeners();
-        this.initializeWidgets();
-        this.setupDragAndDrop();
-        this.setupAI();
-        this.loadInitialData();
-        this.setupNotifications();
-        this.setupAnimations();
-        // this.initAutoRefreshControls(); // Disabled to prevent rapid refreshing
+        try {
+            console.log('🔧 Initializing Production Dashboard components...');
+            
+            // Initialize core components first (non-blocking)
+            this.setupEventListeners();
+            this.initializeWidgets();
+            this.setupDragAndDrop();
+            this.setupAI();
+            this.setupNotifications();
+            this.setupAnimations();
+            
+            console.log('✅ Production Dashboard components initialized');
+            
+            // Hide loading screen immediately to show the dashboard
+            this.hideLoadingScreen();
+            
+            // Load data in background without blocking the UI
+            setTimeout(() => {
+                this.loadInitialData().catch(error => {
+                    console.error('❌ Error in loadInitialData:', error);
+                    this.showNotification('⚠️ Some data may be unavailable', 'warning', 3000);
+                });
+            }, 1000); // 1 second delay to let UI render first
+            
+        } catch (error) {
+            console.error('❌ Error initializing Production Dashboard:', error);
+            this.hideLoadingScreen();
+            this.showNotification('⚠️ Dashboard loaded with basic functionality', 'warning', 3000);
+        }
     }
 
     setupEventListeners() {
@@ -912,36 +933,109 @@ class ProductionDashboard {
 
     async loadInitialData() {
         try {
-            // Authentication is handled by server-side redirects
-            // No need to check authentication on client-side
-
-            console.log('🔄 Loading initial data...');
+            console.log('🔄 Loading REAL IBM Quantum data...');
+            this.showNotification('🔗 Connecting to IBM Quantum for real data...', 'info', 3000);
             
-            // Load data FIRST, then initialize dashboard
-            await this.fetchDashboardData();
+            // Load real data with aggressive timeout protection
+            const dataPromises = [
+                this.fetchRealBackendsData(),
+                this.fetchRealJobsData(),
+                this.fetchRealPerformanceData()
+            ];
             
-            // Now initialize dashboard with real data
+            // Race between data loading and timeout
+            const results = await Promise.allSettled([
+                Promise.race([
+                    Promise.all(dataPromises),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Data loading timeout')), 8000))
+                ])
+            ]);
+            
+            // Process results
+            if (results[0].status === 'fulfilled') {
+                console.log('✅ Real IBM Quantum data loaded successfully');
+                this.showNotification('✅ Real IBM Quantum data loaded!', 'success', 3000);
+            } else {
+                console.log('⚠️ Some data loading failed, but continuing with available data');
+                this.showNotification('⚠️ Some data may be unavailable', 'warning', 3000);
+            }
+            
+            // Initialize dashboard with real data
             this.initializeDashboardSync();
             
-            // Update all widgets with the loaded data
+            // Update all widgets with real data
             this.updateAllWidgets().catch(error => {
                 console.error('Error updating widgets:', error);
-                this.showNotification('⚠️ Some widgets failed to update', 'warning', 3000);
             });
+            
             this.updateConnectionStatus();
             
-            // Load additional data in background
-            this.fetchRecommendations().catch(error => {
-                console.log('⚠️ Recommendations loading failed (non-critical):', error);
+        } catch (error) {
+            console.error('❌ Error loading real data:', error);
+            this.showNotification('❌ Failed to load real data - check IBM Quantum connection', 'error', 5000);
+        }
+    }
+    
+    async fetchRealBackendsData() {
+        try {
+            console.log('🔍 Fetching real IBM Quantum backends...');
+            const response = await fetch('/api/backends', {
+                headers: { 'Cache-Control': 'no-cache' }
             });
             
-            this.hideLoadingScreen();
-            this.showNotification('✅ Dashboard loaded with real IBM Quantum data!', 'success', 3000);
-            
+            if (response.ok) {
+                const data = await response.json();
+                this.state.backends = data.backends || data;
+                console.log(`✅ Loaded ${this.state.backends.length} real backends`);
+                return true;
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
         } catch (error) {
-            console.error('❌ Error in loadInitialData:', error);
-            this.hideLoadingScreen();
-                this.showNotification('⚠️ Some data may be outdated', 'warning', 3000);
+            console.error('❌ Failed to fetch real backends:', error);
+            return false;
+        }
+    }
+    
+    async fetchRealJobsData() {
+        try {
+            console.log('🔍 Fetching real IBM Quantum jobs...');
+            const response = await fetch('/api/jobs', {
+                headers: { 'Cache-Control': 'no-cache' }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.state.jobs = data.jobs || data;
+                console.log(`✅ Loaded ${this.state.jobs.length} real jobs`);
+                return true;
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
+        } catch (error) {
+            console.error('❌ Failed to fetch real jobs:', error);
+            return false;
+        }
+    }
+    
+    async fetchRealPerformanceData() {
+        try {
+            console.log('🔍 Fetching real performance metrics...');
+            const response = await fetch('/api/performance_metrics', {
+                headers: { 'Cache-Control': 'no-cache' }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.state.performance = data;
+                console.log('✅ Loaded real performance data');
+                return true;
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
+        } catch (error) {
+            console.error('❌ Failed to fetch real performance data:', error);
+            return false;
         }
     }
 
@@ -9098,45 +9192,51 @@ ${JSON.stringify(noise, null, 2)}`;
     }
 };
 
-// Initialize dashboard when DOM is loaded - FIXED VERSION
+// Initialize dashboard when DOM is loaded - ROBUST VERSION
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Initializing Hackathon Dashboard...');
+    console.log('🚀 Initializing Quantum Nexus Production Dashboard...');
     
-    // Create dashboard instance
-    window.hackathonDashboard = new HackathonDashboard();
-    
-    // Initialize dashboard with FIXED settings to prevent rapid refreshing
-    console.log('🔧 Applying refresh fixes...');
-    
-    // Disable automatic refresh controls
-    if (window.hackathonDashboard.initAutoRefreshControls) {
-        // window.hackathonDashboard.initAutoRefreshControls(); // DISABLED
-        console.log('🚫 Auto refresh controls disabled');
+    // Create dashboard instance with error protection
+    try {
+        window.dashboard = new ProductionDashboard();
+        console.log('✅ Dashboard instance created');
+    } catch (error) {
+        console.error('❌ Failed to create dashboard instance:', error);
+        return;
     }
     
-    // Disable real-time updates that cause rapid refreshing
-    if (window.hackathonDashboard.startRealtimeUpdates) {
-        // window.hackathonDashboard.startRealtimeUpdates(); // DISABLED
-        console.log('🚫 Real-time updates disabled to prevent rapid refreshing');
+    // Initialize dashboard with timeout protection
+    const initTimeout = setTimeout(() => {
+        console.log('⏰ Dashboard initialization timeout - forcing completion');
+        if (window.dashboard && window.dashboard.hideLoadingScreen) {
+            window.dashboard.hideLoadingScreen();
+        }
+    }, 10000); // 10 second timeout
+    
+    // Initialize dashboard with error handling
+    try {
+        if (window.dashboard && window.dashboard.init) {
+            window.dashboard.init();
+            clearTimeout(initTimeout);
+            console.log('✅ Production Dashboard initialized successfully!');
+        } else {
+            console.error('❌ Dashboard init method not available');
+            clearTimeout(initTimeout);
+        }
+    } catch (error) {
+        console.error('❌ Dashboard initialization failed:', error);
+        clearTimeout(initTimeout);
+        
+        // Fallback initialization
+        if (window.dashboard) {
+            try {
+                window.dashboard.hideLoadingScreen();
+                console.log('🔄 Fallback initialization completed');
+            } catch (fallbackError) {
+                console.error('❌ Fallback initialization also failed:', fallbackError);
+            }
+        }
     }
     
-    // DISABLE ALL REFRESH INTERVALS
-    console.log('🚫 All refresh intervals disabled to prevent rapid refreshing');
-    
-    // Set longer refresh intervals
-    if (window.hackathonDashboard.refreshIntervalMs) {
-        window.hackathonDashboard.refreshIntervalMs = 300000; // 5 minutes
-        console.log('⏰ Refresh interval set to 5 minutes');
-    }
-    
-    if (window.hackathonDashboard.realtimeUpdateInterval) {
-        window.hackathonDashboard.realtimeUpdateInterval = 300000; // 5 minutes
-        console.log('⏰ Real-time update interval set to 5 minutes');
-    }
-    
-    // Initialize dashboard
-    window.hackathonDashboard.init();
-    
-    console.log('✅ Hackathon Dashboard initialized successfully!');
-    console.log('🎯 Rapid refreshing issues have been fixed');
+    console.log('🎯 Quantum Nexus initialization process completed');
 });

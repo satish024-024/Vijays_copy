@@ -10,7 +10,7 @@ import time
 
 def test_simple_dashboard():
     """Test simple dashboard"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:10000"
     session = requests.Session()
     
     print("🚀 Testing Simple Dashboard...")

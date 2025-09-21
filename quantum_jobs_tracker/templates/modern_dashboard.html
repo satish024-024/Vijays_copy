@@ -853,6 +853,161 @@
             }
         }
 
+        /* Widget Content Styles */
+        .backend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .backend-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .backend-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .backend-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .backend-status.operational {
+            background: #56ab2f;
+            color: white;
+        }
+
+        .backend-status.offline {
+            background: #dc3545;
+            color: white;
+        }
+
+        .backend-qubits {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .job-stats, .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .job-stat, .perf-stat {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .recent-jobs {
+            margin-top: 1rem;
+        }
+
+        .job-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .job-id {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .job-status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .job-status.running {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .job-status.done {
+            background: #28a745;
+            color: white;
+        }
+
+        .job-status.queued {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .entanglement-info, .results-info, .quantum-state-info {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .entanglement-controls, .results-controls, .state-controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--modern-gradient);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         /* Responsive Design */
         @media (max-width: 1200px) {
             .header {
@@ -1093,6 +1248,10 @@
         </div>
         
         <div class="header-right">
+            <button class="btn btn-secondary" id="tutorial-btn">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Tutorial</span>
+            </button>
             <button class="btn btn-secondary theme-switcher-btn" id="theme-switcher-btn">
                 <i class="fas fa-palette"></i>
                 <span>Theme</span>
@@ -1110,6 +1269,21 @@
 
     <!-- Notifications Container -->
     <div class="notification-container" id="notification-container"></div>
+
+    <!-- Tutorial Modal -->
+    <div class="popup-overlay" id="tutorial-modal">
+        <div class="popup-modal" style="max-width: 800px; max-height: 600px;">
+            <div class="popup-header">
+                <h3><i class="fas fa-graduation-cap"></i> Quantum Dashboard Tutorial</h3>
+                <button class="popup-close" id="close-tutorial">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="popup-content">
+                <p>Tutorial content will be loaded dynamically...</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -1550,11 +1724,16 @@
     <!-- Math.js for quantum calculations -->
     <script src="https://unpkg.com/mathjs@11.11.0/lib/browser/math.min.js"></script>
     
-    <!-- Blochy Integration -->
-    <script src="../blochy-source/quantum.js"></script>
-    <script src="../blochy-source/plot.js"></script>
-    <script src="../blochy-source/ui.js"></script>
-    <script src="../blochy-source/helper.js"></script>
+    <!-- Blochy Integration - Dependencies -->
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/libs/three/three.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/libs/three/jsm/controls/OrbitControls.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/libs/three/jsm/renderers/CSS2DRenderer.js') }}"></script>
+    
+    <!-- Blochy Integration - Core -->
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/quantum/bloch_sphere.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/quantum/bloch_sphere_state.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/quantum/quantum_gate.js') }}"></script>
+    <script src="{{ url_for('static', filename='bloch-sphere-reference/src/init.js') }}"></script>
     
     <!-- 3D Circuit -->
     <script src="static/3d_quantum_circuit.js"></script>
@@ -1568,6 +1747,9 @@
     
     <!-- Main Dashboard Script -->
     <script src="/static/hackathon_dashboard.js"></script>
+    
+    <!-- Enhanced AI Assistant -->
+    <script src="/static/enhanced_ai_assistant.js"></script>
     
     <!-- Backend Comparison (Compare button + modal) -->
     <script src="static/backend_comparison.js"></script>
@@ -1687,6 +1869,81 @@
                 };
                 headerRight.appendChild(offlineBtn);
             }
+        });
+    </script>
+    
+    <!-- Dashboard Initialization -->
+    <script>
+        // Initialize the hackathon dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Modern Dashboard with Hackathon Script...');
+            console.log('🔍 DOM loaded, checking for widgets...');
+            
+            // Check if widgets exist in DOM
+            const widgets = document.querySelectorAll('.widget');
+            console.log('📊 Found', widgets.length, 'widgets in DOM');
+            widgets.forEach((widget, index) => {
+                const widgetType = widget.getAttribute('data-widget');
+                console.log(`Widget ${index + 1}:`, widgetType, widget);
+                
+                // Show widget content by default
+                const contentElement = widget.querySelector('[id$="-content"]');
+                if (contentElement) {
+                    contentElement.style.display = 'block';
+                    console.log(`✅ Showing content for widget: ${widgetType}`);
+                }
+                
+                // Hide loading states
+                const loadingElement = widget.querySelector('.loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                    console.log(`✅ Hiding loading for widget: ${widgetType}`);
+                }
+            });
+            
+            // Wait for all scripts to load
+            setTimeout(() => {
+                try {
+                    console.log('🔧 Creating HackathonDashboard instance for Modern theme...');
+                    
+                    // Check if HackathonDashboard class exists
+                    if (typeof HackathonDashboard === 'undefined') {
+                        console.error('❌ HackathonDashboard class not found!');
+                        return;
+                    }
+                    
+                    // Initialize the dashboard with Modern theme
+                    window.hackathonDashboard = new HackathonDashboard();
+                    window.dashboard = window.hackathonDashboard;
+                    console.log('✅ Modern Dashboard initialized successfully with Hackathon script');
+                    
+                    // Test widget functionality
+                    setTimeout(() => {
+                        console.log('🧪 Testing widget functionality...');
+                        if (window.hackathonDashboard && window.hackathonDashboard.widgets) {
+                            console.log('📊 Widgets registered:', window.hackathonDashboard.widgets.size);
+                            console.log('🎯 Available widgets:', Array.from(window.hackathonDashboard.widgets.keys()));
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('❌ Error initializing modern dashboard:', error);
+                    console.error('Stack trace:', error.stack);
+                    
+                    // Fallback initialization
+                    setTimeout(() => {
+                        try {
+                            console.log('🔄 Retrying modern dashboard initialization...');
+                            window.hackathonDashboard = new HackathonDashboard();
+                            window.dashboard = window.hackathonDashboard;
+                            console.log('✅ Modern Dashboard initialized on retry');
+                        } catch (retryError) {
+                            console.error('❌ Modern Dashboard initialization failed completely:', retryError);
+                            console.error('Retry stack trace:', retryError.stack);
+                        }
+                    }, 1000);
+                }
+            }, 500);
         });
     </script>
 </body>

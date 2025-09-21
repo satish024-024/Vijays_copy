@@ -15,6 +15,9 @@
 
     <!-- Bloch Sphere Styles -->
     <link rel="stylesheet" href="/static/bloch_sphere/main.css">
+    
+    <!-- Dashboard Fix CSS -->
+    <link rel="stylesheet" href="/static/dashboard_fix.css">
 
     <!-- Plotly for 3D visualizations -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -745,6 +748,62 @@
             color: var(--text-secondary);
         }
 
+        /* AI Circuit Generation Styles */
+        .ai-circuit-response {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .ai-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .ai-action-btn {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+        }
+
+        .ai-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .ai-loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-accent);
+            font-style: italic;
+        }
+
+        .ai-error {
+            color: var(--danger-color);
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger-color);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .header {
@@ -879,6 +938,35 @@
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Emergency fix to show widget content */
+        .widget [id$="-content"] {
+            display: block !important;
+        }
+        
+        .widget .loading {
+            display: none !important;
+        }
+        
+        .widget-content-placeholder {
+            padding: 1rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--glass-border);
+            border-top: 2px solid var(--text-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -935,6 +1023,21 @@
                 <i class="fas fa-sync-alt"></i>
                 Refresh All
             </button>
+            <!-- Auto-refresh controls -->
+            <div id="auto-refresh-controls" style="display: flex; align-items: center; gap: 8px; margin-left: 12px;">
+                <span id="hack-countdown" style="background: rgba(6, 182, 212, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600; color: #06b6d4; min-width: 40px; text-align: center;">300s</span>
+                <select id="refresh-interval-select" style="padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.3); background: var(--glass-bg); color: var(--text-primary); font-size: 0.9rem;">
+                    <option value="30">30 seconds</option>
+                    <option value="60">1 minute</option>
+                    <option value="120">2 minutes</option>
+                    <option value="300" selected>5 minutes</option>
+                    <option value="600">10 minutes</option>
+                    <option value="900">15 minutes</option>
+                </select>
+                <button id="auto-refresh-toggle" style="padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.3); background: var(--glass-bg); color: var(--text-primary); cursor: pointer;">
+                    <i class="fas fa-pause"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -1018,6 +1121,14 @@
                     </div>
                     <div id="backends-content" style="display: none;">
                         <!-- Backends content will be loaded here -->
+                        <div class="widget-content-placeholder">
+                            <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                <i class="fas fa-server" style="font-size: 2rem; margin-bottom: 1rem; color: var(--text-accent);"></i>
+                                <h4>Quantum Backends</h4>
+                                <p>Loading IBM Quantum backend information...</p>
+                                <div class="loading-spinner" style="margin: 1rem auto;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1541,6 +1652,11 @@
                     <input type="text" id="api-name" placeholder="My Quantum Instance" 
                            style="width: 100%; padding: 0.75rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-primary);">
                 </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="api-crn" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">CRN (Optional):</label>
+                    <input type="text" id="api-crn" placeholder="Enter your IBM Quantum CRN" 
+                           style="width: 100%; padding: 0.75rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-primary);">
+                </div>
                 <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                     <button class="btn btn-secondary" id="cancel-api-config">Cancel</button>
                     <button class="btn btn-primary" id="save-api-config">Save Configuration</button>
@@ -1661,8 +1777,62 @@
     <!-- Theme Switcher -->
     <script src="/static/theme_switcher.js"></script>
     
+    <!-- Enhanced AI Assistant -->
+    <script src="/static/enhanced_ai_assistant.js"></script>
+    
     <!-- Main Dashboard Script -->
     <script src="/static/hackathon_dashboard.js"></script>
+    
+    <!-- Emergency Fix Script -->
+    <script>
+        // Emergency fix to hide loading screen
+        setTimeout(() => {
+            console.log('🚨 Emergency loading screen fix activated');
+            const loadingElements = document.querySelectorAll('.loading, .loading-screen, #loading-screen, .quantum-loading');
+            loadingElements.forEach(el => {
+                el.style.display = 'none';
+                el.style.opacity = '0';
+                el.classList.add('hidden');
+            });
+            
+            // Show main content
+            const mainContent = document.querySelector('.dashboard, .main-content, .quantum-container, .widgets-container');
+            if (mainContent) {
+                mainContent.style.display = 'block';
+                mainContent.style.opacity = '1';
+            }
+            
+            console.log('✅ Emergency fix applied - loading screen hidden');
+            
+            // Add force refresh button
+            const header = document.querySelector('.header, .dashboard-header');
+            if (header && !document.getElementById('force-refresh-btn')) {
+                const refreshBtn = document.createElement('button');
+                refreshBtn.id = 'force-refresh-btn';
+                refreshBtn.innerHTML = '🔄 Force Refresh Data';
+                refreshBtn.style.cssText = `
+                    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-left: 20px;
+                    transition: all 0.3s ease;
+                `;
+                refreshBtn.onclick = () => {
+                    if (window.dashboard && window.dashboard.forceLoadData) {
+                        window.dashboard.forceLoadData();
+                    } else {
+                        location.reload();
+                    }
+                };
+                header.appendChild(refreshBtn);
+            }
+        }, 3000);
+    </script>
     
     <!-- Additional JavaScript for enhanced functionality -->
     <script>
@@ -1671,11 +1841,11 @@
             console.log('🚀 Initializing Quantum Spark Dashboard...');
             
             // Initialize the dashboard
-            if (typeof HackathonDashboard !== 'undefined') {
-                window.dashboard = new HackathonDashboard();
-                console.log('✅ Hackathon Dashboard initialized successfully');
+            if (typeof EnhancedQuantumDashboard !== 'undefined') {
+                window.dashboard = new EnhancedQuantumDashboard();
+                console.log('✅ Enhanced Quantum Dashboard initialized successfully');
             } else {
-                console.error('❌ HackathonDashboard class not found');
+                console.error('❌ EnhancedQuantumDashboard class not found');
             }
             
             // Setup additional event listeners
@@ -1710,29 +1880,8 @@
             
             if (saveApiConfig) {
                 saveApiConfig.addEventListener('click', () => {
-                    const token = document.getElementById('api-token').value;
-                    const name = document.getElementById('api-name').value;
-                    
-                    if (token && name) {
-                        // Save API configuration
-                        localStorage.setItem('quantum_api_token', token);
-                        localStorage.setItem('quantum_api_name', name);
-                        
-                        // Show success notification
-                        if (window.dashboard && window.dashboard.showNotification) {
-                            window.dashboard.showNotification('✅ API configuration saved successfully!', 'success');
-                        }
-                        
-                        apiConfigModal.classList.remove('active');
-                        
-                        // Refresh dashboard with new API
-                        if (window.dashboard && window.dashboard.updateAllWidgets) {
-                            window.dashboard.updateAllWidgets();
-                        }
-                    } else {
-                        if (window.dashboard && window.dashboard.showNotification) {
-                            window.dashboard.showNotification('Please fill in all fields', 'error');
-                        }
+                    if (window.dashboardInstance) {
+                        window.dashboardInstance.addApiInstance();
                     }
                 });
             }
@@ -1859,6 +2008,82 @@
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-theme');
             }
+        });
+    </script>
+    
+    <!-- Dashboard Initialization -->
+    <script>
+        // Initialize the hackathon dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Hackathon Dashboard...');
+            console.log('🔍 DOM loaded, checking for widgets...');
+            
+            // Check if widgets exist in DOM
+            const widgets = document.querySelectorAll('.widget');
+            console.log('📊 Found', widgets.length, 'widgets in DOM');
+            widgets.forEach((widget, index) => {
+                const widgetType = widget.getAttribute('data-widget');
+                console.log(`Widget ${index + 1}:`, widgetType, widget);
+                
+                // Show widget content by default
+                const contentElement = widget.querySelector('[id$="-content"]');
+                if (contentElement) {
+                    contentElement.style.display = 'block';
+                    console.log(`✅ Showing content for widget: ${widgetType}`);
+                }
+                
+                // Hide loading states
+                const loadingElement = widget.querySelector('.loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                    console.log(`✅ Hiding loading for widget: ${widgetType}`);
+                }
+            });
+            
+            // Wait for all scripts to load
+            setTimeout(() => {
+                try {
+                    console.log('🔧 Creating HackathonDashboard instance...');
+                    
+                    // Check if HackathonDashboard class exists
+                    if (typeof HackathonDashboard === 'undefined') {
+                        console.error('❌ HackathonDashboard class not found!');
+                        return;
+                    }
+                    
+                    // Initialize the dashboard
+                    window.hackathonDashboard = new HackathonDashboard();
+                    console.log('✅ Hackathon Dashboard initialized successfully');
+                    
+                    // Make sure the dashboard is accessible globally
+                    window.dashboard = window.hackathonDashboard;
+                    
+                    // Test widget functionality
+                    setTimeout(() => {
+                        console.log('🧪 Testing widget functionality...');
+                        if (window.hackathonDashboard && window.hackathonDashboard.widgets) {
+                            console.log('📊 Widgets registered:', window.hackathonDashboard.widgets.size);
+                            console.log('🎯 Available widgets:', Array.from(window.hackathonDashboard.widgets.keys()));
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('❌ Error initializing dashboard:', error);
+                    console.error('Stack trace:', error.stack);
+                    
+                    // Fallback initialization
+                    setTimeout(() => {
+                        try {
+                            console.log('🔄 Retrying dashboard initialization...');
+                            window.hackathonDashboard = new HackathonDashboard();
+                            console.log('✅ Dashboard initialized on retry');
+                        } catch (retryError) {
+                            console.error('❌ Dashboard initialization failed completely:', retryError);
+                            console.error('Retry stack trace:', retryError.stack);
+                        }
+                    }, 1000);
+                }
+            }, 500);
         });
     </script>
 </body>

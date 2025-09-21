@@ -116,7 +116,7 @@ function Start-AppModule {
 import sys
 sys.path.insert(0, '.')
 from quantum_jobs_tracker.real_quantum_app import app
-app.run(host='0.0.0.0', port=$Port, debug=$($Debug.ToString().ToLower()))
+app.run(host='0.0.0.0', port=$Port, debug=False, use_reloader=False)
 "@
 
         & $Config.PythonCmd -c $script

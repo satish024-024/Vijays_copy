@@ -441,7 +441,7 @@
                     if (data.success) {
                         showStatus('Login successful! Redirecting to dashboard...', 'success');
                         setTimeout(() => {
-                            window.location.href = '/';
+                            window.location.href = data.redirect || '/hackathon';
                         }, 1500);
                     } else {
                         showStatus(data.message || 'Login failed', 'error');

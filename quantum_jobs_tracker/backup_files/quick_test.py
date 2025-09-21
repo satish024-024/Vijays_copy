@@ -10,7 +10,7 @@ import time
 
 def quick_test():
     """Quick test of the system"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:10000"
     session = requests.Session()
     
     print("🚀 Quick System Test...")

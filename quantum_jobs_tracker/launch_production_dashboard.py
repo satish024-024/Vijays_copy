@@ -19,7 +19,7 @@ def launch_production_dashboard():
     # Check if server is already running
     try:
         import requests
-        response = requests.get("http://localhost:5000", timeout=2)
+        response = requests.get("http://localhost:10000", timeout=2)
         if response.status_code == 200:
             print("✅ Server is already running!")
             open_dashboard()
@@ -45,7 +45,7 @@ def launch_production_dashboard():
     for i in range(30):  # Wait up to 30 seconds
         try:
             import requests
-            response = requests.get("http://localhost:5000", timeout=1)
+            response = requests.get("http://localhost:10000", timeout=1)
             if response.status_code == 200:
                 print("✅ Server started successfully!")
                 break
@@ -61,7 +61,7 @@ def launch_production_dashboard():
 
 def open_dashboard():
     """Open the production dashboard in the browser"""
-    dashboard_url = "http://localhost:5000/production-dashboard"
+    dashboard_url = "http://localhost:10000/production-dashboard"
     print(f"🌐 Opening dashboard: {dashboard_url}")
     
     try:
@@ -81,8 +81,8 @@ def open_dashboard():
     
     print("\n📋 Quick Access URLs:")
     print(f"• Production Dashboard: {dashboard_url}")
-    print("• Hackathon Dashboard: http://localhost:5000/dashboard")
-    print("• Advanced Dashboard: http://localhost:5000/advanced")
+    print("• Hackathon Dashboard: http://localhost:10000/dashboard")
+    print("• Advanced Dashboard: http://localhost:10000/advanced")
     
     print("\n🔧 Server Controls:")
     print("• Press Ctrl+C to stop the server")

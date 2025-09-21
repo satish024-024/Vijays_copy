@@ -569,9 +569,9 @@ class QuantumCircuitApp {
         code += '# Draw circuit\n';
         code += 'print(qc.draw())\n\n';
         code += '# Run on simulator\n';
-        code += 'from qiskit import Aer, execute\n';
-        code += 'backend = Aer.get_backend(\'qasm_simulator\')\n';
-        code += 'job = execute(qc, backend, shots=1024)\n';
+        code += 'from qiskit_aer import AerSimulator\n';
+        code += 'backend = AerSimulator()\n';
+        code += 'job = backend.run(qc, shots=1024)\n';
         code += 'result = job.result()\n';
         code += 'counts = result.get_counts(qc)\n';
         code += 'print(counts)\n';

@@ -1240,27 +1240,22 @@ class QuantumDashboard {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Initializing Advanced Dashboard...');
 
-    // Wait for HackathonDashboard to be available, then initialize QuantumDashboard
+    // Initialize QuantumDashboard directly
     const initAdvancedDashboard = () => {
-        if (typeof HackathonDashboard !== 'undefined') {
-            console.log('✅ HackathonDashboard found, initializing QuantumDashboard...');
-            window.dashboard = new QuantumDashboard();
-            console.log('🎉 Quantum Dashboard is ready!');
+        console.log('✅ Initializing QuantumDashboard directly...');
+        window.dashboard = new QuantumDashboard();
+        console.log('🎉 Quantum Dashboard is ready!');
 
-            // Make viewJobDetails globally accessible
-            QuantumDashboard.makeGlobal();
+        // Make viewJobDetails globally accessible
+        QuantumDashboard.makeGlobal();
 
-            // Initialize widgets once (no force reloading)
-            setTimeout(() => {
-                if (window.dashboard) {
-                    console.log('🚀 Initializing widgets once...');
-                    window.dashboard.initializeWidgetsOnce();
-                }
-            }, 1000);
-        } else {
-            console.log('⏳ Waiting for HackathonDashboard...');
-            setTimeout(initAdvancedDashboard, 100);
-        }
+        // Initialize widgets once (no force reloading)
+        setTimeout(() => {
+            if (window.dashboard) {
+                console.log('🚀 Initializing widgets once...');
+                window.dashboard.initializeWidgetsOnce();
+            }
+        }, 1000);
     };
 
     initAdvancedDashboard();
